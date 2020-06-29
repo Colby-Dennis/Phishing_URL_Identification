@@ -3,6 +3,8 @@ setwd('/home/colby/Documents/RET/teamC/')
 # Required Packages
 # install.packages("ggplot2")
 # install.packages("gridExtra")
+library(ggplot2)
+library(gridExtra)
 
 #Loading in the data
 mysmalldata <- read.csv("rawDataSetSmall.csv")
@@ -20,88 +22,65 @@ data_names <- c("id","having_IP_address","URL_Length","Shortining_Service","havi
 names(mysmalldata) <- data_names
 names(myrawdata) <- data_names
 
-result_exist <- c()
-i <- 1
-while (i <= nrow(mysmalldata)) {
-  if (is.na(mysmalldata[i,32])) {
-    result_exist[i] <- F
-  } else {
-    result_exist[i] <- T
+# Creating functions to clean the data.
+
+# Function that removes all non-existance result rows
+clean_results <- function(df) {
+  does_exist <- c()
+  i <- 1
+  while (i <= (nrow(df))) {
+    if (is.na(df[i,ncol(df)])) {
+      does_exist[i] <- F
+    } else {
+      does_exist[i] <- T
+    }
+    i <- i + 1
   }
-  i <- i + 1
+  return(df[does_exist,])
 }
 
-df_cleaned_results <- mysmalldata[result_exist,]
-
-zero_clean <- df_cleaned_results
-
-# Stupid cleaning loop cause yeah...
-i <- 2
-while (i <= 31) {
-  j <- 1
-  while (j <= nrow(zero_clean[i])) {
-    if (is.na(zero_clean[[i]][j])) {
-      zero_clean[[i]][j] <- 0
+# Function that replaces all NA's with zeros
+replace_zero <- function(df) {
+  i <- 2
+  while (i <= (ncol(df)-1)) {
+    j <- 1
+    while (j<= nrow(df[i])) {
+      if (is.na(df[[i]][j])) {
+        df[[i]][j] <- 0
+      }
+      j <- j + 1
     }
-    j <- j + 1
+    i <- i + 1
   }
-  i <- i + 1
+  return(df)
 }
 
 # Using a low ranking value to determine what 1 and -1 represents.
 hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # 1 represents phishing, -1 represents ligitimant and 0 represents suspicous.
 
-# Creating a color vector
-data_result <- c()
-i <- 1
-while (i <= nrow(mysmalldata)) {
-  if (is.na(mysmalldata[i,32])) {
-    data_result[i] <- "Unknown"
-  } else {
-    if (mysmalldata[i,32] == -1) {
-    data_result[i] <- "Phishing"
-  } else {
-    data_result[i] <- "Legitimate"
-  }
-  }
-  
-  i <- i + 1
-}
-
-URL_Request <- c()
-i <- 1
-while (i <= nrow(mysmalldata)) {
-  if (is.na(mysmalldata$Request_URL[i])) {
-    URL_Request[i] <- 0
-  } else {
-    URL_Request[i] <- mysmalldata$Request_URL[i]
-  }
-  i <- i + 1
-}
-
-df <- data.frame(URL_Request, data_result)
-p0 <- ggplot(df, aes(x=URL_Request, color=data_result, fill=data_result)) +
-  geom_histogram(bins=3) +
-    ggtitle("Are Objects like images loaded from the same domain?")
+# Getting datasets
+small_cleaned_results <- clean_results(mysmalldata)
+small_cleaned_zeros <- replace_zero(small_cleaned_results)
 
 
 # Plotting information
-library(ggplot2)
-p1 <- ggplot(mysmalldata, aes(x=Request_URL, color=data_result, fill=data_result)) + 
-  geom_histogram( bins=3) + 
-  ggtitle("Are objects like images are loaded from the same domain?")
-p2 <- ggplot(mysmalldata, aes(x=age_of_domain, color=data_result, fill=data_result)) +
-  geom_histogram( bins=3) +
+p1 <- ggplot(small_cleaned_zeros, aes(x=Request_URL, color=factor(Result), fill=factor(Result))) +
+  geom_histogram(bins=3) +
+  ggtitle("Are Objects like images loaded from the same domain?")
+
+p2 <- ggplot(small_cleaned_zeros, aes(x=age_of_domain, color=factor(Result), fill=factor(Result))) +
+  geom_histogram(bins=3) +
   ggtitle("Is the age of the domain greater than 2 years?")
-p3 <- ggplot(mysmalldata, aes(x=SSLfinal_State, color=data_result, fill=data_result)) +
-  geom_histogram( bins=3) +
+
+p3 <- ggplot(small_cleaned_zeros, aes(x=SSLfinal_State, color=factor(Result), fill=factor(Result))) +
+  geom_histogram(bins=3) +
   ggtitle("Is the final state HTTPS?")
-p4 <-ggplot(mysmalldata, aes(x=Statistical_report, color=data_result, fill=data_result)) +
-  geom_histogram( bins=3) +
+
+p4 <-ggplot(small_cleaned_zeros, aes(x=Statistical_report, color=factor(Result), fill=factor(Result))) +
+  geom_histogram(bins=3) +
   ggtitle("Is the website rank less than 100,000")
 
-
-library(gridExtra)
 grid.arrange(p1,p2,p3,p4, nrow=2)
+
   
