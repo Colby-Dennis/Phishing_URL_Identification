@@ -1,5 +1,7 @@
 setwd('/home/colby/Documents/RET/teamC/')
 
+# to comment out a chunk ctrl+shift+c
+
 # Required Packages
 # install.packages("ggplot2")
 # install.packages("gridExtra")
@@ -55,6 +57,56 @@ replace_zero <- function(df) {
   return(df)
 }
 
+# Function that replaces the unknown with an average.
+replace_average <- function(df) {
+  i <- 2
+  while (i <= (ncol(df)-1)) {
+    j <- 1
+    average = mean(df[,i], na.rm=T)
+    while (j<= nrow(df[i])) {
+      if (is.na(df[[i]][j])) {
+        df[[i]][j] <- average
+      }
+      j <- j + 1
+    }
+    i <- i + 1
+  }
+  return(df)
+}
+
+# Function that replaces the unknown with the most often
+replace_mode <- function(df) {
+  i <- 2
+  while (i <= (ncol(df)-1)) {
+    j <- 1
+    value_matrix <- matrix(table(df[,i]))
+    value <- -1
+    if (nrow(value_matrix) == 3) {
+      if (value_matrix[1] > value_matrix[2] && value_matrix[1] > value_matrix[3]) {
+        value <- -1
+      } else if (value_matrix[2] > value_matrix[3]) {
+        value <- 0
+      } else {
+        value <- 1
+      }
+    } else {
+      if (value_matrix[1] > value_matrix[2]) {
+        value <- -1
+      } else {
+        value <- 1
+      }
+    }
+    while (j<= nrow(df[i])) {
+      if (is.na(df[[i]][j])) {
+        df[[i]][j] <- value
+      }
+      j <- j + 1
+    }
+    i <- i + 1
+  }
+  return(df)
+}
+
 # Using a low ranking value to determine what 1 and -1 represents.
 hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # 1 represents phishing, -1 represents ligitimant and 0 represents suspicous.
@@ -62,6 +114,7 @@ hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # Getting datasets
 small_cleaned_results <- clean_results(mysmalldata)
 small_cleaned_zeros <- replace_zero(small_cleaned_results)
+small_cleaned_average <- replace_average(small_cleaned_results)
 
 
 # Plotting information
@@ -83,4 +136,3 @@ p4 <-ggplot(small_cleaned_zeros, aes(x=Statistical_report, color=factor(Result),
 
 grid.arrange(p1,p2,p3,p4, nrow=2)
 
-  
