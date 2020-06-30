@@ -153,8 +153,14 @@ hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 
 # Getting datasets
 small_cleaned_results <- clean_results(mysmalldata)
-small_cleaned_zeros <- replace_zero(small_cleaned_results)
-small_cleaned_average <- replace_average(small_cleaned_results)
+# small_cleaned_zeros <- replace_zero(small_cleaned_results)
+# small_cleaned_average <- replace_average(small_cleaned_results)
+
+# Partition Data
+
+# Check Partition
+
+# Simple Perception
 
 
 # Plotting information
