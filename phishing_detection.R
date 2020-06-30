@@ -1,4 +1,6 @@
-setwd('/home/colby/Documents/GitHub/Phishing_URL_Identification/')
+# setwd('/home/colby/Documents/GitHub/Phishing_URL_Identification/')
+#
+# 
 
 # to comment out a chunk ctrl+shift+c
 
@@ -154,3 +156,4 @@ p4 <-ggplot(small_cleaned_zeros, aes(x=Statistical_report, color=factor(Result),
 
 grid.arrange(p1,p2,p3,p4, nrow=2)
 
+print("Sally runs")
