@@ -6,9 +6,11 @@
 # install.packages("ggplot2")
 # install.packages("gridExtra")
 # install.packages("neuralnet")
+# install.packages("caret")
 library(ggplot2)
 library(gridExtra)
 library(neuralnet)
+library(caret)
 
 #Loading in the data
 mysmalldata <- read.csv("rawDataSetSmall.csv")
@@ -152,28 +154,28 @@ replace_random_withzero <- function(df) {
 }
 
 # Using a low ranking value to determine what 1 and -1 represents.
-hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
+# hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # 1 represents phishing, -1 represents ligitimant and 0 represents suspicous.
+
+set.seed(700)
 
 # Getting datasets
 small_cleaned_results <- clean_results(mysmalldata)
+raw_cleaned_results <- clean_results(myrawdata)
 # small_cleaned_zeros <- replace_zero(small_cleaned_results)
 # small_cleaned_average <- replace_average(small_cleaned_results)
 
 # Partition Data
-library(caret)
-partitioned_small <- createDataPartition(y = mysmalldata$Result, p= 0.7, list = FALSE)
+partitioned_small <- createDataPartition(y = small_cleaned_results$Result, p= 0.7, list = FALSE)
 
-mysmalldata_train <- mysmalldata[partitioned_small,]
-mysmalldata_test <- mysmalldata[-partitioned_small,]
+mysmalldata_train <- small_cleaned_results[partitioned_small,]
+mysmalldata_test <- small_cleaned_results[-partitioned_small,]
 
-partitioned_raw <- createDataPartition(y = myrawdata$Result, p= 0.7, list = FALSE)
+partitioned_raw <- createDataPartition(y = raw_cleaned_results$Result, p= 0.7, list = FALSE)
 
-myrawdata_train <- myrawdata[partitioned_raw]
-myrawdata_test <- myrawdata[-partitioned_raw,]
+myrawdata_train <- raw_cleaned_results[partitioned_raw,]
+myrawdata_test <- raw_cleaned_results[-partitioned_raw,]
 
-dim(trainSet)
-dim(testSet)
 # Check Partition
 #two-sample z-test on small data (mysmalldata_test , mysmalldata_train)
 p1 <- sum(mysmalldata_train$Result=="-1")/nrow(mysmalldata_train)
@@ -199,13 +201,21 @@ z.p <- 2*pnorm(-abs(z))
 
 
 # Simple Perception
-simp_perc_zeros<-neuralnet(Results~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
+mysmalldata_train_zeros <- replace_zero(mysmalldata_train)
+mysmalldata_test_zeros <- replace_zero(mysmalldata_test)
+
+simp_perc_small_zeros<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
                            double_slash_redirecting+Prefix_Suffix+having_Sub_Domain+SSLfinal_State+
                            Domain_registration_length+Favicon+Port+HTTPS_token+Request_URL+
                            URL_of_Anchor+Links_in_tags+SFH+Submitting_to_email+Abnormal_URL+
                            Redirect+on_mouseover+RightClick+popUpWindow+Iframe+age_of_domain+
                            DNSRecord+web_traffic+Page_Rank+Google_Index+Links_pointing_to_page+
-                           Statistical_report, mysmalldata_train,hidden=c(1,1))
+                           Statistical_report, mysmalldata_train_zeros,hidden=c(1,1))
+
+plot(simp_perc_small_zeros)
+
+simp_perc_small_zeros_model<-predict(simp_perc_small_zeros,newdata = mysmalldata_test_zeros) 
+#confusionMatrix(simp_perc_small_zeros_model, mysmalldata_test_zeros$Result)
 
 # Plotting information
 # p1 <- ggplot(small_cleaned_zeros, aes(x=Request_URL, color=factor(Result), fill=factor(Result))) +
