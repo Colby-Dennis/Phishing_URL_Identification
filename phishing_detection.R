@@ -159,6 +159,28 @@ small_cleaned_results <- clean_results(mysmalldata)
 # Partition Data
 
 # Check Partition
+#two-sample z-test on small data (mysmalldata_test , mysmalldata_train)
+p1 <- sum(mysmalldata_train$Result=="-1")/nrow(mysmalldata_train)
+p2 <- sum(mysmalldata_test$Result=="-1")/nrow(mysmalldata_test)
+p_pooled <- (sum(mysmalldata_train$Result=="-1") +
+               sum(mysmalldata_test$Result=="-1"))/
+  (nrow(mysmalldata_train) + nrow(mysmalldata_test))
+z <- (p1 - p2)/sqrt(p_pooled*(1-p_pooled) *
+                      (1/nrow(mysmalldata_train) + 1/nrow(mysmalldata_test)))
+z.p <- 2*pnorm(-abs(z))
+
+#two-sample z-test on raw data (myrawdata_test, myrawdata_train)
+p1 <- sum(myrawdata_train$Result=="-1")/nrow(myrawdata_train)
+p2 <- sum(myrawdata_test$Result=="-1")/nrow(myrawdata_test)
+p_pooled <- (sum(myrawdata_train$Result=="-1") +
+               sum(myrawdata_test$Result=="-1"))/
+  (nrow(myrawdata_train) + nrow(myrawdata_test))
+z <- (p1 - p2)/sqrt(p_pooled*(1-p_pooled) *
+                      (1/nrow(myrawdata_train) + 1/nrow(myrawdata_test)))
+z.p <- 2*pnorm(-abs(z))
+
+
+
 
 # Simple Perception
 
