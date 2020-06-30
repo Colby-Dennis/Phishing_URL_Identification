@@ -153,6 +153,21 @@ replace_random_withzero <- function(df) {
   return(df)
 }
 
+# A function to covert predictions to binary result
+get_prediction <- function(mod) {
+  result_vec <- integer(nrow(mod))
+  i <- 1
+  while (i <= nrow(mod)) {
+    if (mod[i] >= 0) {
+      result_vec[i] <- 1
+    } else {
+      result_vec[i] <- -1
+    }
+    i <- i + 1
+  }
+  return(result_vec)
+}
+
 # Using a low ranking value to determine what 1 and -1 represents.
 # hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # 1 represents phishing, -1 represents ligitimant and 0 represents suspicous.
@@ -215,7 +230,9 @@ simp_perc_small_zeros<-neuralnet(Result~having_IP_address+URL_Length+Shortining_
 plot(simp_perc_small_zeros)
 
 simp_perc_small_zeros_model<-predict(simp_perc_small_zeros,newdata = mysmalldata_test_zeros) 
-#confusionMatrix(simp_perc_small_zeros_model, mysmalldata_test_zeros$Result)
+simp_perc_small_zeros_result <- get_prediction(simp_perc_small_zeros_model)
+simp_perc_small_zeros_conf <- confusionMatrix(factor(simp_perc_small_zeros_result), factor(mysmalldata_test_zeros$Result))
+print(simp_perc_small_zeros_conf)
 
 # Plotting information
 # p1 <- ggplot(small_cleaned_zeros, aes(x=Request_URL, color=factor(Result), fill=factor(Result))) +
