@@ -107,6 +107,24 @@ replace_mode <- function(df) {
   return(df)
 }
 
+#Randomly generates either a -1,0,1
+set0<-c(-1,0,1)
+replace_random_withzero <- function(df) {
+  i <- 2
+  while (i <= (ncol(df)-1)) {
+    j <- 1
+    while (j<= nrow(df[i])) {
+      if (is.na(df[[i]][j])) {
+        value<-sample(set0,1)
+        df[[i]][j] <- value
+      }
+      j <- j + 1
+    }
+    i <- i + 1
+  }
+  return(df)
+}
+
 # Using a low ranking value to determine what 1 and -1 represents.
 hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # 1 represents phishing, -1 represents ligitimant and 0 represents suspicous.
