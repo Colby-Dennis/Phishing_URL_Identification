@@ -1,6 +1,4 @@
 # setwd('/home/colby/Documents/GitHub/Phishing_URL_Identification/')
-#
-# 
 
 # to comment out a chunk ctrl+shift+c
 
@@ -76,6 +74,28 @@ replace_average <- function(df) {
   return(df)
 }
 
+#Function that replaces all NAs with a proportional (yet random) distribution of -1 or 1 based on known values
+
+replace_distribution <- function(df) {
+  i <- 2
+  while (i <= (ncol(df)-1)) {
+    j <- 1
+    uniq1 <- c(0,-1, 1)
+    cnt <- tabulate(df[,i], uniq1)
+    prop <- cnt[2] / cnt[3]
+    nmbr<-ifelse(runif(1)<=prop,-1,1)
+
+    while (j<= nrow(df[i])) {
+      if (is.na(df[[i]][j])) {
+        df[[i]][j] <- nmbr
+      }
+      j <- j + 1
+    }
+    i <- i + 1
+  }
+  return(df)
+}
+
 # Function that replaces the unknown with the most often
 replace_mode <- function(df) {
   i <- 2
@@ -133,8 +153,14 @@ hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 
 # Getting datasets
 small_cleaned_results <- clean_results(mysmalldata)
-small_cleaned_zeros <- replace_zero(small_cleaned_results)
-small_cleaned_average <- replace_average(small_cleaned_results)
+# small_cleaned_zeros <- replace_zero(small_cleaned_results)
+# small_cleaned_average <- replace_average(small_cleaned_results)
+
+# Partition Data
+
+# Check Partition
+
+# Simple Perception
 
 
 # Plotting information
@@ -156,4 +182,3 @@ p4 <-ggplot(small_cleaned_zeros, aes(x=Statistical_report, color=factor(Result),
 
 grid.arrange(p1,p2,p3,p4, nrow=2)
 
-print("Sally runs")
