@@ -1,4 +1,4 @@
-setwd('/home/colby/Documents/RET/teamC/')
+setwd('/home/colby/Documents/GitHub/Phishing_URL_Identification/')
 
 # to comment out a chunk ctrl+shift+c
 
