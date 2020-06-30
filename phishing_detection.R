@@ -157,7 +157,19 @@ small_cleaned_results <- clean_results(mysmalldata)
 # small_cleaned_average <- replace_average(small_cleaned_results)
 
 # Partition Data
+library(caret)
+partitioned_small <- createDataPartition(y = mysmalldata$Result, p= 0.7, list = FALSE)
 
+mysmalldata_train <- mysmalldata[partitioned_small,]
+mysmalldata_test <- mysmalldata[-partitioned_small,]
+
+partitioned_raw <- createDataPartition(y = myrawdata$Result, p= 0.7, list = FALSE)
+
+myrawdata_train <- myrawdata[partitioned_raw]
+myrawdata_test <- myrawdata[-partitioned_raw,]
+
+dim(trainSet)
+dim(testSet)
 # Check Partition
 
 # Simple Perception
