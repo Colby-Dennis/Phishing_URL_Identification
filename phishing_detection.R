@@ -213,7 +213,28 @@ z <- (p1 - p2)/sqrt(p_pooled*(1-p_pooled) *
 z.p <- 2*pnorm(-abs(z))
 
 
+# Cleaning functions 
 
+#replace with Zeros
+mysmalldata_train <- replace_zero(mysmalldata_train)
+mysmalldata_test <- replace_zero(mysmalldata_test)
+myrawdata_train <- replace_zero(myrawdata_train)
+myrawdata_test <- replace_zero(myrawdata_test)
+#replace with random -1 or 1
+mysmalldata_train <- replace_random_withzero(mysmalldata_train)
+mysmalldata_test <- replace_random_withzero(mysmalldata_test)
+myrawdata_train <- replace_random_withzero(myrawdata_train)
+myrawdata_test <- replace_random_withzero(myrawdata_test)
+#replace with mode
+mysmalldata_train <- replace_mode(mysmalldata_train)
+mysmalldata_test <- replace_mode(mysmalldata_test)
+myrawdata_train <- replace_mode(myrawdata_train)
+myrawdata_test <- replace_mode(myrawdata_test)
+#replace with distributive -1 and 1
+mysmalldata_train <- replace_distribution(mysmalldata_train)
+mysmalldata_test <- replace_distribution(mysmalldata_test)
+myrawdata_train <- replace_distribution(myrawdata_train)
+myrawdata_test <- replace_distribution(myrawdata_test)
 
 # Simple Perception
 mysmalldata_train_zeros <- replace_zero(mysmalldata_train)
