@@ -85,7 +85,6 @@ replace_average <- function(df) {
 #Function that replaces all NAs with a proportional (yet random) distribution of -1 or 1 based on known values
 
 replace_distribution <- function(df) {
-replace_distribution <- function(df) {
   for (i in 2:(ncol(df)-1)) {
     uniq1 <- c(0,-1, 1)
     cnt <- tabulate(match(df[,i], uniq1))
