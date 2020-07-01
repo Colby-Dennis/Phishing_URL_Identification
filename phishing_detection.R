@@ -294,6 +294,41 @@ simp_perc_small_model<-predict(simp_perc_small,newdata = mysmalldata_test)
 simp_perc_small_result <- get_prediction(simp_perc_small_model)
 simp_perc_small_conf <- confusionMatrix(factor(simp_perc_small_result), factor(mysmalldata_test$Result), mode="everything")
 print(simp_perc_small_conf)
+  
+  
+# 1 hidden layer, 2 nodes neural network
+
+nn_1_2_small<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
+                             double_slash_redirecting+Prefix_Suffix+having_Sub_Domain+SSLfinal_State+
+                             Domain_registration_length+Favicon+Port+HTTPS_token+Request_URL+
+                             URL_of_Anchor+Links_in_tags+SFH+Submitting_to_email+Abnormal_URL+
+                             Redirect+on_mouseover+RightClick+popUpWindow+Iframe+age_of_domain+
+                             DNSRecord+web_traffic+Page_Rank+Google_Index+Links_pointing_to_page+
+                             Statistical_report, mysmalldata_train,hidden=c(2))
+
+plot(nn_1_2_small)
+
+nn_1_2_small_model<-predict(nn_1_2_small,newdata = mysmalldata_test) 
+nn_1_2_small_result <- get_prediction(nn_1_2_small_model)
+nn_1_2_small_conf <- confusionMatrix(factor(nn_1_2_small_result), factor(mysmalldata_test$Result), mode="everything")
+print(nn_1_2_small_conf)
+
+# 2 hidden layers 4 nodes
+
+nn_2_4_small<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
+                          double_slash_redirecting+Prefix_Suffix+having_Sub_Domain+SSLfinal_State+
+                          Domain_registration_length+Favicon+Port+HTTPS_token+Request_URL+
+                          URL_of_Anchor+Links_in_tags+SFH+Submitting_to_email+Abnormal_URL+
+                          Redirect+on_mouseover+RightClick+popUpWindow+Iframe+age_of_domain+
+                          DNSRecord+web_traffic+Page_Rank+Google_Index+Links_pointing_to_page+
+                          Statistical_report, mysmalldata_train,hidden=c(4,4))
+
+plot(nn_2_4_small)
+
+nn_2_4_small_model<-predict(nn_2_4_small,newdata = mysmalldata_test) 
+nn_2_4_small_result <- get_prediction(nn_2_4_small_model)
+nn_2_4_small_conf <- confusionMatrix(factor(nn_2_4_small_result), factor(mysmalldata_test$Result), mode="everything")
+print(nn_2_4_small_conf)
 
 # Plotting information
 # p1 <- ggplot(small_cleaned_zeros, aes(x=Request_URL, color=factor(Result), fill=factor(Result))) +
