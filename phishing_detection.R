@@ -286,7 +286,7 @@ prettyTree(tree.model)
 rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
   
 # KNN Model
-grid <- expand.grid(k = c(1, 3,4, 5, 6,  7,8,  9))
+grid <- expand.grid(k = c(1:10))
 # choose values for K in K-NN
 trctl <- trainControl("repeatedcv", number = 10, repeats = 3)
 knn_fit_small <- train(Result ~., data = mysmalldata_train, method = "knn",trControl=trctl, tuneGrid=grid)
@@ -365,3 +365,22 @@ print(nn_2_4_small_conf)
 # 
 # grid.arrange(p1,p2,p3,p4, nrow=2)
 
+#Correlation Matrix (comparing 4 characteristics from above "Request URL","age-of-domain","SSL","Statistical Report")
+X <- mysmalldata_train[,c(9,14,25,31)]
+#normalize the predictor variables
+X_z <- as.data.frame(scale(X))
+#find the correlation of the predictor variables
+a<-round(cor(X_z),3)
+plot(a)
+plot(as.data.frame(a))
+heatmap(a)
+
+#Correlation Matrix (Comparing all characteristics)
+Y <- mysmalldata_train[,c(1:32)]
+#normalize the predictor variables
+Y_z <- as.data.frame(scale(Y))
+#find the correlation of the predictor variables
+b<-round(cor(Y_z),3)
+plot(b)
+plot(as.data.frame(b)) #MUST ZOOM IN => HARD TO SEE
+heatmap(b)
