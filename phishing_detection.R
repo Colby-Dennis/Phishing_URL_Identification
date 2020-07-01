@@ -1,5 +1,5 @@
 # setwd('/home/colby/Documents/GitHub/Phishing_URL_Identification/')
-
+# setwd("C:/Users/jhern/Desktop/PROJECT/Phishing_URL_Identification")
 # to comment out a chunk ctrl+shift+c
 
 # Required Packages
@@ -256,7 +256,6 @@ lin_pred_conf <- confusionMatrix(factor(lin_pred), factor(mysmalldata_test$Resul
 print(lin_pred_conf)
 
 # Decision Tree for small data 
-#. means use all predictor variables
 tree.model <- rpart(Result~., data=mysmalldata_train, method="class")
 print(tree.model) #shows the data partition percentages and the split attributes
 #run the model on the data, print a confusion matrix, and show the accuracy
@@ -268,7 +267,25 @@ accuracy.percent <- 100*sum(diag(confusion.matrix))/sum(confusion.matrix)
 print(paste("accuracy:",accuracy.percent,"%"))
 print(paste("error rate:",100-accuracy.percent,"%"))
 
-#plot the tree (may not show very well)
+#plot the tree 
+plot(tree.model)
+text(tree.model, pretty=1)
+prettyTree(tree.model)
+rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
+
+# Decision Tree for raw data 
+tree.model <- rpart(Result~., data=myrawdata_train, method="class")
+print(tree.model) #shows the data partition percentages and the split attributes
+#run the model on the data, print a confusion matrix, and show the accuracy
+tree.prediction <- predict(tree.model, newdata=myrawdata_test, type="class")
+confusion.matrix <- table(myrawdata_test$Result, tree.prediction)
+print(confusion.matrix)
+#generate the tree accuracy from the confusion matrix
+accuracy.percent <- 100*sum(diag(confusion.matrix))/sum(confusion.matrix)
+print(paste("accuracy:",accuracy.percent,"%"))
+print(paste("error rate:",100-accuracy.percent,"%"))
+
+#plot the tree 
 plot(tree.model)
 text(tree.model, pretty=1)
 prettyTree(tree.model)
