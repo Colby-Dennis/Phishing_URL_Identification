@@ -11,6 +11,8 @@ library(ggplot2)
 library(gridExtra)
 library(neuralnet)
 library(caret)
+library(rpart); library(rpart.plot)
+library(DMwR)
 
 #Loading in the data
 mysmalldata <- read.csv("rawDataSetSmall.csv")
@@ -252,6 +254,25 @@ while (i <= length(pred)) {
 
 lin_pred_conf <- confusionMatrix(factor(lin_pred), factor(mysmalldata_test$Result), mode="everything")
 print(lin_pred_conf)
+
+# Decision Tree for small data 
+#. means use all predictor variables
+tree.model <- rpart(Result~., data=mysmalldata_train, method="class")
+print(tree.model) #shows the data partition percentages and the split attributes
+#run the model on the data, print a confusion matrix, and show the accuracy
+tree.prediction <- predict(tree.model, newdata=mysmalldata_test, type="class")
+confusion.matrix <- table(mysmalldata_test$Result, tree.prediction)
+print(confusion.matrix)
+#generate the tree accuracy from the confusion matrix
+accuracy.percent <- 100*sum(diag(confusion.matrix))/sum(confusion.matrix)
+print(paste("accuracy:",accuracy.percent,"%"))
+print(paste("error rate:",100-accuracy.percent,"%"))
+
+#plot the tree (may not show very well)
+plot(tree.model)
+text(tree.model, pretty=1)
+prettyTree(tree.model)
+rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
 
 # Simple Perception
 simp_perc_small<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
