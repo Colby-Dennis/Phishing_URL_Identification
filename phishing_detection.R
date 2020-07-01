@@ -183,77 +183,91 @@ raw_cleaned_results <- clean_results(myrawdata)
 # Partition Data
 partitioned_small <- createDataPartition(y = small_cleaned_results$Result, p= 0.7, list = FALSE)
 
-mysmalldata_train <- small_cleaned_results[partitioned_small,]
-mysmalldata_test <- small_cleaned_results[-partitioned_small,]
+mysmalldata_train_b <- small_cleaned_results[partitioned_small,]
+mysmalldata_test_b <- small_cleaned_results[-partitioned_small,]
 
 partitioned_raw <- createDataPartition(y = raw_cleaned_results$Result, p= 0.7, list = FALSE)
 
-myrawdata_train <- raw_cleaned_results[partitioned_raw,]
-myrawdata_test <- raw_cleaned_results[-partitioned_raw,]
+myrawdata_train_b <- raw_cleaned_results[partitioned_raw,]
+myrawdata_test_b <- raw_cleaned_results[-partitioned_raw,]
 
 # Check Partition
 #two-sample z-test on small data (mysmalldata_test , mysmalldata_train)
-p1 <- sum(mysmalldata_train$Result=="-1")/nrow(mysmalldata_train)
-p2 <- sum(mysmalldata_test$Result=="-1")/nrow(mysmalldata_test)
-p_pooled <- (sum(mysmalldata_train$Result=="-1") +
-               sum(mysmalldata_test$Result=="-1"))/
-  (nrow(mysmalldata_train) + nrow(mysmalldata_test))
+p1 <- sum(mysmalldata_train_b$Result=="-1")/nrow(mysmalldata_train_b)
+p2 <- sum(mysmalldata_test_b$Result=="-1")/nrow(mysmalldata_test_b)
+p_pooled <- (sum(mysmalldata_train_b$Result=="-1") +
+               sum(mysmalldata_test_b$Result=="-1"))/
+  (nrow(mysmalldata_train_b) + nrow(mysmalldata_test_b))
 z <- (p1 - p2)/sqrt(p_pooled*(1-p_pooled) *
-                      (1/nrow(mysmalldata_train) + 1/nrow(mysmalldata_test)))
+                      (1/nrow(mysmalldata_train_b) + 1/nrow(mysmalldata_test_b)))
 z.p <- 2*pnorm(-abs(z))
 
 #two-sample z-test on raw data (myrawdata_test, myrawdata_train)
-p1 <- sum(myrawdata_train$Result=="-1")/nrow(myrawdata_train)
-p2 <- sum(myrawdata_test$Result=="-1")/nrow(myrawdata_test)
-p_pooled <- (sum(myrawdata_train$Result=="-1") +
-               sum(myrawdata_test$Result=="-1"))/
-  (nrow(myrawdata_train) + nrow(myrawdata_test))
+p1 <- sum(myrawdata_train_b$Result=="-1")/nrow(myrawdata_train_b)
+p2 <- sum(myrawdata_test_b$Result=="-1")/nrow(myrawdata_test_b)
+p_pooled <- (sum(myrawdata_train_b$Result=="-1") +
+               sum(myrawdata_test_b$Result=="-1"))/
+  (nrow(myrawdata_train_b) + nrow(myrawdata_test_b))
 z <- (p1 - p2)/sqrt(p_pooled*(1-p_pooled) *
-                      (1/nrow(myrawdata_train) + 1/nrow(myrawdata_test)))
+                      (1/nrow(myrawdata_train_b) + 1/nrow(myrawdata_test_b)))
 z.p <- 2*pnorm(-abs(z))
 
 
 # Cleaning functions 
 
 #replace with Zeros
-mysmalldata_train <- replace_zero(mysmalldata_train)
-mysmalldata_test <- replace_zero(mysmalldata_test)
-myrawdata_train <- replace_zero(myrawdata_train)
-myrawdata_test <- replace_zero(myrawdata_test)
-#replace with random -1 or 1
-mysmalldata_train <- replace_random_withzero(mysmalldata_train)
-mysmalldata_test <- replace_random_withzero(mysmalldata_test)
-myrawdata_train <- replace_random_withzero(myrawdata_train)
-myrawdata_test <- replace_random_withzero(myrawdata_test)
-#replace with mode
-mysmalldata_train <- replace_mode(mysmalldata_train)
-mysmalldata_test <- replace_mode(mysmalldata_test)
-myrawdata_train <- replace_mode(myrawdata_train)
-myrawdata_test <- replace_mode(myrawdata_test)
-#replace with distributive -1 and 1
-mysmalldata_train <- replace_distribution(mysmalldata_train)
-mysmalldata_test <- replace_distribution(mysmalldata_test)
-myrawdata_train <- replace_distribution(myrawdata_train)
-myrawdata_test <- replace_distribution(myrawdata_test)
+mysmalldata_train <- replace_zero(mysmalldata_train_b)
+mysmalldata_test <- replace_zero(mysmalldata_test_b)
+myrawdata_train <- replace_zero(myrawdata_train_b)
+myrawdata_test <- replace_zero(myrawdata_test_b)
+# #replace with random -1 or 1
+# mysmalldata_train <- replace_random_withzero(mysmalldata_train_b)
+# mysmalldata_test <- replace_random_withzero(mysmalldata_test_b)
+# myrawdata_train <- replace_random_withzero(myrawdata_train_b)
+# myrawdata_test <- replace_random_withzero(myrawdata_test_b)
+# #replace with mode
+# mysmalldata_train <- replace_mode(mysmalldata_train_b)
+# mysmalldata_test <- replace_mode(mysmalldata_test_b)
+# myrawdata_train <- replace_mode(myrawdata_train_b)
+# myrawdata_test <- replace_mode(myrawdata_test_b)
+# #replace with distributive -1 and 1
+# mysmalldata_train <- replace_distribution(mysmalldata_train_b)
+# mysmalldata_test <- replace_distribution(mysmalldata_test_b)
+# myrawdata_train <- replace_distribution(myrawdata_train_b)
+# myrawdata_test <- replace_distribution(myrawdata_test_b)
+
+# linear base model
+baseline_model<-lm(Result~.,mysmalldata_train) 
+pred<-predict(baseline_model,mysmalldata_test) 
+i <- 1
+lin_pred <- integer(length(pred))
+while (i <= length(pred)) {
+  if (pred[[i]] >= 0) {
+    lin_pred[i] <- 1
+  } else {
+    lin_pred[i] <- -1
+  }
+  i <- i + 1
+}
+
+lin_pred_conf <- confusionMatrix(factor(lin_pred), factor(mysmalldata_test$Result), mode="everything")
+print(lin_pred_conf)
 
 # Simple Perception
-mysmalldata_train_zeros <- replace_zero(mysmalldata_train)
-mysmalldata_test_zeros <- replace_zero(mysmalldata_test)
-
-simp_perc_small_zeros<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
+simp_perc_small<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
                            double_slash_redirecting+Prefix_Suffix+having_Sub_Domain+SSLfinal_State+
                            Domain_registration_length+Favicon+Port+HTTPS_token+Request_URL+
                            URL_of_Anchor+Links_in_tags+SFH+Submitting_to_email+Abnormal_URL+
                            Redirect+on_mouseover+RightClick+popUpWindow+Iframe+age_of_domain+
                            DNSRecord+web_traffic+Page_Rank+Google_Index+Links_pointing_to_page+
-                           Statistical_report, mysmalldata_train_zeros,hidden=c(1,1))
+                           Statistical_report, mysmalldata_train,hidden=c(1))
 
-plot(simp_perc_small_zeros)
+plot(simp_perc_small, main="Simple Perceptron w/ NA's replaced with zeros")
 
-simp_perc_small_zeros_model<-predict(simp_perc_small_zeros,newdata = mysmalldata_test_zeros) 
-simp_perc_small_zeros_result <- get_prediction(simp_perc_small_zeros_model)
-simp_perc_small_zeros_conf <- confusionMatrix(factor(simp_perc_small_zeros_result), factor(mysmalldata_test_zeros$Result))
-print(simp_perc_small_zeros_conf)
+simp_perc_small_model<-predict(simp_perc_small,newdata = mysmalldata_test) 
+simp_perc_small_result <- get_prediction(simp_perc_small_model)
+simp_perc_small_conf <- confusionMatrix(factor(simp_perc_small_result), factor(mysmalldata_test$Result), mode="everything")
+print(simp_perc_small_conf)
 
 # Plotting information
 # p1 <- ggplot(small_cleaned_zeros, aes(x=Request_URL, color=factor(Result), fill=factor(Result))) +
