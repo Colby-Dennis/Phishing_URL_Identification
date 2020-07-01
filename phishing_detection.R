@@ -268,6 +268,16 @@ plot(tree.model)
 text(tree.model, pretty=1)
 prettyTree(tree.model)
 rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
+  
+# KNN Model
+grid <- expand.grid(k = c(1, 3,4, 5, 6,  7,8,  9))
+# choose values for K in K-NN
+trctl <- trainControl("repeatedcv", number = 10, repeats = 3)
+knn_fit_small <- train(Result ~., data = mysmalldata_train, method = "knn",trControl=trctl, tuneGrid=grid)
+plot(knn_fit_small)
+test_pred <- predict(knn_fit_small, newdata = mysmalldata_test)
+test_pred <- ifelse(test_pred>0, 1, -1)
+confusionMatrix(factor(test_pred), factor(mysmalldata_test$Result))
 
 # Simple Perception
 simp_perc_small<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
