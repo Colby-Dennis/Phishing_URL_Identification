@@ -1,12 +1,19 @@
 # setwd('/home/colby/Documents/GitHub/Phishing_URL_Identification/')
-
+# setwd("C:/Users/jhern/Desktop/PROJECT/Phishing_URL_Identification")
 # to comment out a chunk ctrl+shift+c
 
 # Required Packages
 # install.packages("ggplot2")
 # install.packages("gridExtra")
+# install.packages("neuralnet")
+# install.packages("caret")
+
 library(ggplot2)
 library(gridExtra)
+library(neuralnet)
+library(caret)
+library(rpart); library(rpart.plot)
+library(DMwR)
 
 #Loading in the data
 mysmalldata <- read.csv("rawDataSetSmall.csv")
@@ -28,7 +35,7 @@ names(myrawdata) <- data_names
 
 # Function that removes all non-existance result rows
 clean_results <- function(df) {
-  does_exist <- c()
+  does_exist <- c() # Initialize with information
   i <- 1
   while (i <= (nrow(df))) {
     if (is.na(df[i,ncol(df)])) {
@@ -40,6 +47,8 @@ clean_results <- function(df) {
   }
   return(df[does_exist,])
 }
+
+# Clean w/ df$school[is.na(df$school)] <- "houston"
 
 # Function that replaces all NA's with zeros
 replace_zero <- function(df) {
@@ -147,16 +156,43 @@ replace_random_withzero <- function(df) {
   return(df)
 }
 
+# A function to covert predictions to binary result
+get_prediction <- function(mod) {
+  result_vec <- integer(nrow(mod))
+  i <- 1
+  while (i <= nrow(mod)) {
+    if (mod[i] >= 0) {
+      result_vec[i] <- 1
+    } else {
+      result_vec[i] <- -1
+    }
+    i <- i + 1
+  }
+  return(result_vec)
+}
+
 # Using a low ranking value to determine what 1 and -1 represents.
-hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
+# hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # 1 represents phishing, -1 represents ligitimant and 0 represents suspicous.
+
+set.seed(700)
 
 # Getting datasets
 small_cleaned_results <- clean_results(mysmalldata)
+raw_cleaned_results <- clean_results(myrawdata)
 # small_cleaned_zeros <- replace_zero(small_cleaned_results)
 # small_cleaned_average <- replace_average(small_cleaned_results)
 
 # Partition Data
+partitioned_small <- createDataPartition(y = small_cleaned_results$Result, p= 0.7, list = FALSE)
+
+mysmalldata_train <- small_cleaned_results[partitioned_small,]
+mysmalldata_test <- small_cleaned_results[-partitioned_small,]
+
+partitioned_raw <- createDataPartition(y = raw_cleaned_results$Result, p= 0.7, list = FALSE)
+
+myrawdata_train <- raw_cleaned_results[partitioned_raw,]
+myrawdata_test <- raw_cleaned_results[-partitioned_raw,]
 
 # Check Partition
 #two-sample z-test on small data (mysmalldata_test , mysmalldata_train)
@@ -180,27 +216,84 @@ z <- (p1 - p2)/sqrt(p_pooled*(1-p_pooled) *
 z.p <- 2*pnorm(-abs(z))
 
 
+# Cleaning functions 
+
+#replace with Zeros
+mysmalldata_train <- replace_zero(mysmalldata_train)
+mysmalldata_test <- replace_zero(mysmalldata_test)
+myrawdata_train <- replace_zero(myrawdata_train)
+myrawdata_test <- replace_zero(myrawdata_test)
+#replace with random -1, 0, or 1
+mysmalldata_train <- replace_random_withzero(mysmalldata_train)
+mysmalldata_test <- replace_random_withzero(mysmalldata_test)
+myrawdata_train <- replace_random_withzero(myrawdata_train)
+myrawdata_test <- replace_random_withzero(myrawdata_test)
+#replace with mode
+mysmalldata_train <- replace_mode(mysmalldata_train)
+mysmalldata_test <- replace_mode(mysmalldata_test)
+myrawdata_train <- replace_mode(myrawdata_train)
+myrawdata_test <- replace_mode(myrawdata_test)
+#replace with distributive -1 and 1
+mysmalldata_train <- replace_distribution(mysmalldata_train)
+mysmalldata_test <- replace_distribution(mysmalldata_test)
+myrawdata_train <- replace_distribution(myrawdata_train)
+myrawdata_test <- replace_distribution(myrawdata_test)
+
+# Decision Tree for small data 
+#. means use all predictor variables
+tree.model <- rpart(Result~., data=mysmalldata_train, method="class")
+print(tree.model) #shows the data partition percentages and the split attributes
+#run the model on the data, print a confusion matrix, and show the accuracy
+tree.prediction <- predict(tree.model, newdata=mysmalldata_test, type="class")
+confusion.matrix <- table(mysmalldata_test$Result, tree.prediction)
+print(confusion.matrix)
+#generate the tree accuracy from the confusion matrix
+accuracy.percent <- 100*sum(diag(confusion.matrix))/sum(confusion.matrix)
+print(paste("accuracy:",accuracy.percent,"%"))
+print(paste("error rate:",100-accuracy.percent,"%"))
+
+#plot the tree (may not show very well)
+plot(tree.model)
+text(tree.model, pretty=1)
+prettyTree(tree.model)
+rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
 
 
 # Simple Perception
+mysmalldata_train_zeros <- replace_zero(mysmalldata_train)
+mysmalldata_test_zeros <- replace_zero(mysmalldata_test)
 
+simp_perc_small_zeros<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
+                           double_slash_redirecting+Prefix_Suffix+having_Sub_Domain+SSLfinal_State+
+                           Domain_registration_length+Favicon+Port+HTTPS_token+Request_URL+
+                           URL_of_Anchor+Links_in_tags+SFH+Submitting_to_email+Abnormal_URL+
+                           Redirect+on_mouseover+RightClick+popUpWindow+Iframe+age_of_domain+
+                           DNSRecord+web_traffic+Page_Rank+Google_Index+Links_pointing_to_page+
+                           Statistical_report, mysmalldata_train_zeros,hidden=c(1,1))
+
+plot(simp_perc_small_zeros)
+
+simp_perc_small_zeros_model<-predict(simp_perc_small_zeros,newdata = mysmalldata_test_zeros) 
+simp_perc_small_zeros_result <- get_prediction(simp_perc_small_zeros_model)
+simp_perc_small_zeros_conf <- confusionMatrix(factor(simp_perc_small_zeros_result), factor(mysmalldata_test_zeros$Result))
+print(simp_perc_small_zeros_conf)
 
 # Plotting information
-p1 <- ggplot(small_cleaned_zeros, aes(x=Request_URL, color=factor(Result), fill=factor(Result))) +
-  geom_histogram(bins=3) +
-  ggtitle("Are Objects like images loaded from the same domain?")
-
-p2 <- ggplot(small_cleaned_zeros, aes(x=age_of_domain, color=factor(Result), fill=factor(Result))) +
-  geom_histogram(bins=3) +
-  ggtitle("Is the age of the domain greater than 2 years?")
-
-p3 <- ggplot(small_cleaned_zeros, aes(x=SSLfinal_State, color=factor(Result), fill=factor(Result))) +
-  geom_histogram(bins=3) +
-  ggtitle("Is the final state HTTPS?")
-
-p4 <-ggplot(small_cleaned_zeros, aes(x=Statistical_report, color=factor(Result), fill=factor(Result))) +
-  geom_histogram(bins=3) +
-  ggtitle("Is the website rank less than 100,000")
-
-grid.arrange(p1,p2,p3,p4, nrow=2)
+# p1 <- ggplot(small_cleaned_zeros, aes(x=Request_URL, color=factor(Result), fill=factor(Result))) +
+#   geom_histogram(bins=3) +
+#   ggtitle("Are Objects like images loaded from the same domain?")
+# 
+# p2 <- ggplot(small_cleaned_zeros, aes(x=age_of_domain, color=factor(Result), fill=factor(Result))) +
+#   geom_histogram(bins=3) +
+#   ggtitle("Is the age of the domain greater than 2 years?")
+# 
+# p3 <- ggplot(small_cleaned_zeros, aes(x=SSLfinal_State, color=factor(Result), fill=factor(Result))) +
+#   geom_histogram(bins=3) +
+#   ggtitle("Is the final state HTTPS?")
+# 
+# p4 <-ggplot(small_cleaned_zeros, aes(x=Statistical_report, color=factor(Result), fill=factor(Result))) +
+#   geom_histogram(bins=3) +
+#   ggtitle("Is the website rank less than 100,000")
+# 
+# grid.arrange(p1,p2,p3,p4, nrow=2)
 
