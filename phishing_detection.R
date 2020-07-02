@@ -7,12 +7,14 @@
 # install.packages("gridExtra")
 # install.packages("neuralnet")
 # install.packages("caret")
+install.packages("corrplot")
 library(ggplot2)
 library(gridExtra)
 library(neuralnet)
 library(caret)
 library(rpart); library(rpart.plot)
 library(DMwR)
+library(corrplot)
 
 #Loading in the data
 mysmalldata <- read.csv("https://raw.githubusercontent.com/PhysikerWT/Phishing_URL_Identification/master/rawDataSetSmall.csv")
@@ -425,3 +427,7 @@ d<-round(cor(H_z),3)
 plot(d)
 plot(as.data.frame(d)) #MUST ZOOM IN => HARD TO SEE
 heatmap(d)
+
+
+corrplot(d, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
