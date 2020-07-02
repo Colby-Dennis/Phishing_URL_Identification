@@ -426,5 +426,8 @@ plot(d)
 plot(as.data.frame(d)) #MUST ZOOM IN => HARD TO SEE
 heatmap(d)
 
-
+install.packages("corrplot")
+library(corrplot)
+corrplot(d, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
 
