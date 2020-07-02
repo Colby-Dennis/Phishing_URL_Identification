@@ -7,12 +7,14 @@
 # install.packages("gridExtra")
 # install.packages("neuralnet")
 # install.packages("caret")
+install.packages("corrplot")
 library(ggplot2)
 library(gridExtra)
 library(neuralnet)
 library(caret)
 library(rpart); library(rpart.plot)
 library(DMwR)
+library(corrplot)
 
 #Loading in the data
 mysmalldata <- read.csv("https://raw.githubusercontent.com/PhysikerWT/Phishing_URL_Identification/master/rawDataSetSmall.csv")
@@ -164,9 +166,12 @@ get_prediction <- function(mod) {
   return(result_vec)
 }
 
+# remove 
+
 # Using a low ranking value to determine what 1 and -1 represents.
 # hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # 1 represents phishing, -1 represents ligitimant and 0 represents suspicous.
+mysmalldata$Result <- as.factor(mysmalldata$Result)
 
 set.seed(700)
 
@@ -186,6 +191,8 @@ partitioned_raw <- createDataPartition(y = raw_cleaned_results$Result, p= 0.7, l
 
 myrawdata_train_b <- raw_cleaned_results[partitioned_raw,]
 myrawdata_test_b <- raw_cleaned_results[-partitioned_raw,]
+
+
 
 # Check Partition
 #two-sample z-test on small data (mysmalldata_test , mysmalldata_train)
@@ -231,6 +238,7 @@ myrawdata_test <- replace_zero(myrawdata_test_b)
 # mysmalldata_test <- replace_distribution(mysmalldata_test_b)
 # myrawdata_train <- replace_distribution(myrawdata_train_b)
 # myrawdata_test <- replace_distribution(myrawdata_test_b)
+# throw out all NAs - regardless 
 
 # linear base model
 baseline_model<-lm(Result~.,mysmalldata_train) 
@@ -286,13 +294,17 @@ prettyTree(tree.model)
 rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
   
 # KNN Model
+mysmalldata_train$Result<-as.factor(mysmalldata_train$Result)
+mysmalldata_test$Result<-as.factor(mysmalldata_test$Result)
+
 grid <- expand.grid(k = c(1:10))
 # choose values for K in K-NN
 trctl <- trainControl("repeatedcv", number = 10, repeats = 3)
 knn_fit_small <- train(Result ~., data = mysmalldata_train, method = "knn",trControl=trctl, tuneGrid=grid)
 plot(knn_fit_small)
 test_pred <- predict(knn_fit_small, newdata = mysmalldata_test)
-test_pred <- ifelse(test_pred>0, 1, -1)
+# test_pred <- ifelse(test_pred>0, 1, -1)
+test_pred
 confusionMatrix(factor(test_pred), factor(mysmalldata_test$Result))
 
 # Simple Perception
@@ -426,8 +438,20 @@ plot(d)
 plot(as.data.frame(d)) #MUST ZOOM IN => HARD TO SEE
 heatmap(d)
 
-install.packages("corrplot")
-library(corrplot)
-corrplot(d, type = "upper", order = "hclust", 
-         tl.col = "black", tl.srt = 45)
 
+#Correlation Matrix - Raw data (Comparing all characteristics)
+
+df <- replace_distribution(raw_cleaned_results)
+rawSet <- df[,c(1:32)]
+summary(rawSet)
+#normalize the predictor variables
+rawSet_z <- as.data.frame(scale(rawSet))
+#find the correlation of the predictor variables
+k<-round(cor(rawSet_z),3)
+plot(k)
+plot(as.data.frame(k)) #MUST ZOOM IN => HARD TO SEE
+heatmap(k)
+
+
+corrplot(k, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
