@@ -7,7 +7,7 @@
 # install.packages("gridExtra")
 # install.packages("neuralnet")
 # install.packages("caret")
-install.packages("corrplot")
+# install.packages("corrplot")
 library(ggplot2)
 library(gridExtra)
 library(neuralnet)
@@ -179,12 +179,12 @@ raw_cleaned_results <- clean_results(myrawdata)
 # small_cleaned_average <- replace_average(small_cleaned_results)
 
 # Partition Data
-partitioned_small <- createDataPartition(y = small_cleaned_results$Result, p= 0.7, list = FALSE)
+partitioned_small <- createDataPartition(y = small_cleaned_results$Result, p= 0.3, list = FALSE)
 
 mysmalldata_train_b <- small_cleaned_results[partitioned_small,]
 mysmalldata_test_b <- small_cleaned_results[-partitioned_small,]
 
-partitioned_raw <- createDataPartition(y = raw_cleaned_results$Result, p= 0.7, list = FALSE)
+partitioned_raw <- createDataPartition(y = raw_cleaned_results$Result, p= 0.3, list = FALSE)
 
 myrawdata_train_b <- raw_cleaned_results[partitioned_raw,]
 myrawdata_test_b <- raw_cleaned_results[-partitioned_raw,]
@@ -429,5 +429,5 @@ plot(as.data.frame(d)) #MUST ZOOM IN => HARD TO SEE
 heatmap(d)
 
 
-corrplot(d, type = "upper", order = "hclust", 
+corrplot(c, type = "upper", order = "hclust", 
          tl.col = "black", tl.srt = 45)
