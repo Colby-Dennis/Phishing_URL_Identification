@@ -288,6 +288,10 @@ prettyTree(tree.model)
 rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
   
 # KNN Model
+mysmalldata_train$Result<-as.factor(mysmalldata_train$Result)
+mysmalldata_test$Result<-as.factor(mysmalldata_test$Result)
+
+
 grid <- expand.grid(k = c(1:10))
 # choose values for K in K-NN
 trctl <- trainControl("repeatedcv", number = 10, repeats = 3)
