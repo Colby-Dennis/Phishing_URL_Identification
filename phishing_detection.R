@@ -433,5 +433,19 @@ plot(as.data.frame(d)) #MUST ZOOM IN => HARD TO SEE
 heatmap(d)
 
 
-corrplot(c, type = "upper", order = "hclust", 
+#Correlation Matrix - Raw data (Comparing all characteristics)
+
+df <- replace_distribution(raw_cleaned_results)
+rawSet <- df[,c(1:32)]
+summary(rawSet)
+#normalize the predictor variables
+rawSet_z <- as.data.frame(scale(rawSet))
+#find the correlation of the predictor variables
+k<-round(cor(rawSet_z),3)
+plot(k)
+plot(as.data.frame(k)) #MUST ZOOM IN => HARD TO SEE
+heatmap(k)
+
+
+corrplot(k, type = "upper", order = "hclust", 
          tl.col = "black", tl.srt = 45)
