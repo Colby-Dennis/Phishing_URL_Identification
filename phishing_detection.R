@@ -15,8 +15,8 @@ library(rpart); library(rpart.plot)
 library(DMwR)
 
 #Loading in the data
-mysmalldata <- read.csv("rawDataSetSmall.csv")
-myrawdata <- read.csv("rawDataSet.csv", stringsAsFactors = F)
+mysmalldata <- read.csv("https://raw.githubusercontent.com/PhysikerWT/Phishing_URL_Identification/master/rawDataSetSmall.csv")
+myrawdata <- read.csv("https://raw.githubusercontent.com/PhysikerWT/Phishing_URL_Identification/master/rawDataSet.csv", stringsAsFactors = F)
 
 # Renaming data according to provided paper.
 data_names <- c("id","having_IP_address","URL_Length","Shortining_Service","having_At_Symbol",
