@@ -407,7 +407,7 @@ plot(as.data.frame(b)) #MUST ZOOM IN => HARD TO SEE
 heatmap(b)
 
 #Correlation Matrix (Comparing first half)
-G <- mysmalldata_train[,c(1:15, 32)]
+G <- mysmalldata_train[,c(2:15, 32)]
 #normalize the predictor variables
 G_z <- as.data.frame(scale(G))
 #find the correlation of the predictor variables
@@ -419,7 +419,7 @@ heatmap(c)
 #Correlation Matrix (Comparing second half)
 H <- mysmalldata_train[,c(16:32)]
 #normalize the predictor variables
-H_z <- as.data.frame(scale(G))
+H_z <- as.data.frame(scale(H))
 #find the correlation of the predictor variables
 d<-round(cor(H_z),3)
 plot(d)
