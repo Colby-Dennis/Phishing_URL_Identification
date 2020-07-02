@@ -286,7 +286,7 @@ prettyTree(tree.model)
 rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
   
 # KNN Model
-grid <- expand.grid(k = c(1, 3,4, 5, 6,  7,8,  9))
+grid <- expand.grid(k = c(1:10))
 # choose values for K in K-NN
 trctl <- trainControl("repeatedcv", number = 10, repeats = 3)
 knn_fit_small <- train(Result ~., data = mysmalldata_train, method = "knn",trControl=trctl, tuneGrid=grid)
@@ -311,6 +311,10 @@ simp_perc_small_result <- get_prediction(simp_perc_small_model)
 simp_perc_small_conf <- confusionMatrix(factor(simp_perc_small_result), factor(mysmalldata_test$Result), mode="everything")
 print(simp_perc_small_conf)
   
+# Some activation functions if needed
+softplus <- function(x) log(1+exp(x))
+sigmoid <- function(x) 1/(1+exp(-x))
+gauss <- function(x) exp(-(x*x)/2)
   
 # 1 hidden layer, 2 nodes neural network
 
@@ -329,22 +333,39 @@ nn_1_2_small_result <- get_prediction(nn_1_2_small_model)
 nn_1_2_small_conf <- confusionMatrix(factor(nn_1_2_small_result), factor(mysmalldata_test$Result), mode="everything")
 print(nn_1_2_small_conf)
 
-# 2 hidden layers 4 nodes
+# 1 hidden layer, 3 nodes neural network
 
-nn_2_4_small<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
+nn_1_3_small<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
                           double_slash_redirecting+Prefix_Suffix+having_Sub_Domain+SSLfinal_State+
                           Domain_registration_length+Favicon+Port+HTTPS_token+Request_URL+
                           URL_of_Anchor+Links_in_tags+SFH+Submitting_to_email+Abnormal_URL+
                           Redirect+on_mouseover+RightClick+popUpWindow+Iframe+age_of_domain+
                           DNSRecord+web_traffic+Page_Rank+Google_Index+Links_pointing_to_page+
-                          Statistical_report, mysmalldata_train,hidden=c(4,4))
+                          Statistical_report, mysmalldata_train,hidden=c(3))
 
-plot(nn_2_4_small)
+plot(nn_1_3_small)
 
-nn_2_4_small_model<-predict(nn_2_4_small,newdata = mysmalldata_test) 
-nn_2_4_small_result <- get_prediction(nn_2_4_small_model)
-nn_2_4_small_conf <- confusionMatrix(factor(nn_2_4_small_result), factor(mysmalldata_test$Result), mode="everything")
-print(nn_2_4_small_conf)
+nn_1_3_small_model<-predict(nn_1_3_small,newdata = mysmalldata_test) 
+nn_1_3_small_result <- get_prediction(nn_1_3_small_model)
+nn_1_3_small_conf <- confusionMatrix(factor(nn_1_3_small_result), factor(mysmalldata_test$Result), mode="everything")
+print(nn_1_3_small_conf)
+
+# 1 hidden layer, 4 nodes neural network
+
+nn_1_4_small<-neuralnet(Result~having_IP_address+URL_Length+Shortining_Service+having_At_Symbol+
+                          double_slash_redirecting+Prefix_Suffix+having_Sub_Domain+SSLfinal_State+
+                          Domain_registration_length+Favicon+Port+HTTPS_token+Request_URL+
+                          URL_of_Anchor+Links_in_tags+SFH+Submitting_to_email+Abnormal_URL+
+                          Redirect+on_mouseover+RightClick+popUpWindow+Iframe+age_of_domain+
+                          DNSRecord+web_traffic+Page_Rank+Google_Index+Links_pointing_to_page+
+                          Statistical_report, mysmalldata_train,hidden=c(4))
+
+plot(nn_1_4_small)
+
+nn_1_4_small_model<-predict(nn_1_4_small,newdata = mysmalldata_test) 
+nn_1_4_small_result <- get_prediction(nn_1_4_small_model)
+nn_1_4_small_conf <- confusionMatrix(factor(nn_1_4_small_result), factor(mysmalldata_test$Result), mode="everything")
+print(nn_1_4_small_conf)
 
 # Plotting information
 # p1 <- ggplot(small_cleaned_zeros, aes(x=Request_URL, color=factor(Result), fill=factor(Result))) +
@@ -365,3 +386,22 @@ print(nn_2_4_small_conf)
 # 
 # grid.arrange(p1,p2,p3,p4, nrow=2)
 
+#Correlation Matrix (comparing 4 characteristics from above "Request URL","age-of-domain","SSL","Statistical Report")
+X <- mysmalldata_train[,c(9,14,25,31)]
+#normalize the predictor variables
+X_z <- as.data.frame(scale(X))
+#find the correlation of the predictor variables
+a<-round(cor(X_z),3)
+plot(a)
+plot(as.data.frame(a))
+heatmap(a)
+
+#Correlation Matrix (Comparing all characteristics)
+Y <- mysmalldata_train[,c(1:32)]
+#normalize the predictor variables
+Y_z <- as.data.frame(scale(Y))
+#find the correlation of the predictor variables
+b<-round(cor(Y_z),3)
+plot(b)
+plot(as.data.frame(b)) #MUST ZOOM IN => HARD TO SEE
+heatmap(b)
