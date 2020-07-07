@@ -7,21 +7,16 @@
 # install.packages("gridExtra")
 # install.packages("neuralnet")
 # install.packages("caret")
-<<<<<<< Updated upstream
-=======
 # install.packages("corrplot")
 # install.packages("microbenchmark")
->>>>>>> Stashed changes
 library(ggplot2)
 library(gridExtra)
 library(neuralnet)
 library(caret)
 library(rpart); library(rpart.plot)
 library(DMwR)
-=======
 library(corrplot)
 library(microbenchmark)
->>>>>>> Stashed changes
 
 #Loading in the data
 mysmalldata <- read.csv("https://raw.githubusercontent.com/PhysikerWT/Phishing_URL_Identification/master/rawDataSetSmall.csv")
@@ -101,8 +96,7 @@ replace_average <- function(df) {
   return(df)
 }
 
-#Function that replaces all NAs with a proportional 
-# (yet random) distribution of -1 or 1 based on known values
+#Function that replaces all NAs with a proportional (yet random) distribution of -1 or 1 based on known values
 
 replace_distribution <- function(df) {
   for (i in 2:(ncol(df)-1)) {
@@ -188,9 +182,6 @@ get_prediction <- function(mod) {
 # hist(mysmalldata$having_At_Symbol, main="Having @ symbol")
 # 1 represents phishing, -1 represents ligitimant and 0 represents suspicous.
 
-
-
-
 set.seed(700)
 
 # Getting datasets
@@ -215,12 +206,12 @@ test_2_time <- end_time-start_time
 print(test_2_time)
 
 # Partition Data
-partitioned_small <- createDataPartition(y = small_cleaned_results$Result, p= 0.7, list = FALSE)
+partitioned_small <- createDataPartition(y = small_cleaned_results$Result, p= 0.3, list = FALSE)
 
 mysmalldata_train_b <- small_cleaned_results[partitioned_small,]
 mysmalldata_test_b <- small_cleaned_results[-partitioned_small,]
 
-partitioned_raw <- createDataPartition(y = raw_cleaned_results$Result, p= 0.7, list = FALSE)
+partitioned_raw <- createDataPartition(y = raw_cleaned_results$Result, p= 0.3, list = FALSE)
 
 myrawdata_train_b <- raw_cleaned_results[partitioned_raw,]
 myrawdata_test_b <- raw_cleaned_results[-partitioned_raw,]
@@ -324,6 +315,10 @@ prettyTree(tree.model)
 rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
   
 # KNN Model
+mysmalldata_train$Result<-as.factor(mysmalldata_train$Result)
+mysmalldata_test$Result<-as.factor(mysmalldata_test$Result)
+
+
 grid <- expand.grid(k = c(1:10))
 # choose values for K in K-NN
 trctl <- trainControl("repeatedcv", number = 10, repeats = 3)
@@ -443,8 +438,6 @@ b<-round(cor(Y_z),3)
 plot(b)
 plot(as.data.frame(b)) #MUST ZOOM IN => HARD TO SEE
 heatmap(b)
-<<<<<<< Updated upstream
-=======
 
 #Correlation Matrix (Comparing first half)
 G <- mysmalldata_train[,c(2:15, 32)]
@@ -483,8 +476,6 @@ heatmap(k)
 
 corrplot(k, type = "upper", order = "hclust", 
          tl.col = "black", tl.srt = 45)
-
-
 
 # Creating a reduced model for the browser extension
 fox_labels <- c("URL_Length","having_At_Symbol","double_slash_redirecting",
