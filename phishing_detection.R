@@ -8,6 +8,7 @@
 # install.packages("neuralnet")
 # install.packages("caret")
 # install.packages("corrplot")
+# install.packages("microbenchmark")
 library(ggplot2)
 library(gridExtra)
 library(neuralnet)
@@ -15,6 +16,7 @@ library(caret)
 library(rpart); library(rpart.plot)
 library(DMwR)
 library(corrplot)
+library(microbenchmark)
 
 #Loading in the data
 mysmalldata <- read.csv("https://raw.githubusercontent.com/PhysikerWT/Phishing_URL_Identification/master/rawDataSetSmall.csv")
@@ -62,6 +64,16 @@ replace_zero <- function(df) {
       }
       j <- j + 1
     }
+    i <- i + 1
+  }
+  return(df)
+}
+
+# Parallelized replace NA w/ zero
+replace_zero_new <- function(df) {
+  i <- 2
+  while (i <= (ncol(df)-1)) {
+    df[[i]][is.na(df[[i]])] <- 0
     i <- i + 1
   }
   return(df)
@@ -177,6 +189,21 @@ small_cleaned_results <- clean_results(mysmalldata)
 raw_cleaned_results <- clean_results(myrawdata)
 # small_cleaned_zeros <- replace_zero(small_cleaned_results)
 # small_cleaned_average <- replace_average(small_cleaned_results)
+
+# Checking code speed
+# old code
+start_time <- Sys.time()
+test_1 <- replace_zero(small_cleaned_results)
+end_time <- Sys.time()
+test_1_time <-end_time-start_time
+print(test_1_time)
+
+# new code
+start_time <- Sys.time()
+test_2 <- replace_zero_new(small_cleaned_results)
+end_time <- Sys.time()
+test_2_time <- end_time-start_time
+print(test_2_time)
 
 # Partition Data
 partitioned_small <- createDataPartition(y = small_cleaned_results$Result, p= 0.3, list = FALSE)
@@ -449,3 +476,105 @@ heatmap(k)
 
 corrplot(k, type = "upper", order = "hclust", 
          tl.col = "black", tl.srt = 45)
+
+# Creating a reduced model for the browser extension
+fox_labels <- c("URL_Length","having_At_Symbol","double_slash_redirecting",
+                "Prefix_Suffix","having_Sub_Domain","Result")
+
+fox_train <- myrawdata_train[,fox_labels]
+fox_test <- myrawdata_test[,fox_labels]
+
+fox_baseline_model<-lm(Result~.,fox_train) 
+fox_pred<-predict(fox_baseline_model,fox_test) 
+i <- 1
+fox_lin_pred <- integer(length(fox_pred))
+while (i <= length(fox_pred)) {
+  if (fox_pred[[i]] >= 0) {
+    fox_lin_pred[i] <- 1
+  } else {
+    fox_lin_pred[i] <- -1
+  }
+  i <- i + 1
+}
+
+fox_lin_pred_conf <- confusionMatrix(factor(fox_lin_pred), factor(fox_test$Result), mode="everything")
+print(fox_lin_pred_conf)
+
+# Accuracy was 69.94%
+
+# Decision Tree for small data 
+fox_tree.model <- rpart(Result~., data=fox_train, method="class")
+print(fox_tree.model) #shows the data partition percentages and the split attributes
+#run the model on the data, print a confusion matrix, and show the accuracy
+fox_tree.prediction <- predict(fox_tree.model, newdata=fox_test, type="class")
+fox_confusion.matrix <- table(fox_test$Result, fox_tree.prediction)
+print(fox_confusion.matrix)
+#generate the tree accuracy from the confusion matrix
+fox_accuracy.percent <- 100*sum(diag(fox_confusion.matrix))/sum(fox_confusion.matrix)
+print(paste("accuracy:",fox_accuracy.percent,"%"))
+print(paste("error rate:",100-fox_accuracy.percent,"%"))
+
+#plot the tree 
+plot(fox_tree.model)
+text(fox_tree.model, pretty=1)
+prettyTree(fox_tree.model)
+rpart.plot(fox_tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
+
+# Accuracy was 71.97%
+
+# Simple Perception
+fox_simp_perc_small<-neuralnet(Result~URL_Length+having_At_Symbol+
+                                 double_slash_redirecting+Prefix_Suffix+
+                                 having_Sub_Domain, fox_train,hidden=c(1))
+
+plot(fox_simp_perc_small, main="Simple Perceptron w/ NA's replaced with zeros")
+
+fox_simp_perc_small_model<-predict(fox_simp_perc_small,newdata = fox_test) 
+fox_simp_perc_small_result <- get_prediction(fox_simp_perc_small_model)
+fox_simp_perc_small_conf <- confusionMatrix(factor(fox_simp_perc_small_result), factor(fox_test$Result), mode="everything")
+print(fox_simp_perc_small_conf)
+
+# Accuracy was 71.85%
+
+# nn 1 layer 2 nodes
+fox_nn_2nodes<-neuralnet(Result~URL_Length+having_At_Symbol+
+                           double_slash_redirecting+Prefix_Suffix+
+                           having_Sub_Domain, fox_train,hidden=c(2))
+
+plot(fox_nn_2nodes, main="Simple Perceptron w/ NA's replaced with zeros")
+
+fox_nn_2nodes_model<-predict(fox_nn_2nodes,newdata = fox_test) 
+fox_nn_2nodes_result <- get_prediction(fox_nn_2nodes_model)
+fox_nn_2nodes_conf <- confusionMatrix(factor(fox_nn_2nodes_result), factor(fox_test$Result), mode="everything")
+print(fox_nn_2nodes_conf)
+
+# Accuracy was 71.7%
+
+# nn 1 layer 3 nodes
+fox_nn_3nodes<-neuralnet(Result~URL_Length+having_At_Symbol+
+                           double_slash_redirecting+Prefix_Suffix+
+                           having_Sub_Domain, fox_train,hidden=c(3))
+
+plot(fox_nn_3nodes, main="Simple Perceptron w/ NA's replaced with zeros")
+
+fox_nn_3nodes_model<-predict(fox_nn_3nodes,newdata = fox_test) 
+fox_nn_3nodes_result <- get_prediction(fox_nn_3nodes_model)
+fox_nn_3nodes_conf <- confusionMatrix(factor(fox_nn_3nodes_result), factor(fox_test$Result), mode="everything")
+print(fox_nn_3nodes_conf)
+
+# Accuracy was 71.94%
+
+# nn 1 layer 4 nodes
+fox_nn_4nodes<-neuralnet(Result~URL_Length+having_At_Symbol+
+                           double_slash_redirecting+Prefix_Suffix+
+                           having_Sub_Domain, fox_train,hidden=c(4))
+
+plot(fox_nn_4nodes, main="Simple Perceptron w/ NA's replaced with zeros")
+
+fox_nn_4nodes_model<-predict(fox_nn_4nodes,newdata = fox_test) 
+fox_nn_4nodes_result <- get_prediction(fox_nn_4nodes_model)
+fox_nn_4nodes_conf <- confusionMatrix(factor(fox_nn_4nodes_result), factor(fox_test$Result), mode="everything")
+print(fox_nn_4nodes_conf)
+
+# DID NOT CONVERGE WITHING STEPMAX
+
