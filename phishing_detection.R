@@ -577,3 +577,4 @@ fox_nn_4nodes_conf <- confusionMatrix(factor(fox_nn_4nodes_result), factor(fox_t
 print(fox_nn_4nodes_conf)
 
 # DID NOT CONVERGE WITHING STEPMAX
+
