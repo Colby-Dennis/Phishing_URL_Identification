@@ -1,0 +1,10 @@
+In order to load the extension into Mozilla Firefox do the following.
+
+1. Download all files contained in this directory and store where you can locate it.
+2. In your address bar type in "about:debugging" without the quotes.
+3. Select "This Firefox in the corner.
+4. Select "Load Temporary Add-on..."
+5. Navigate to where you stored the files from the directory and select "manifest.json"
+6. Phishing Checker should now be accessible from the extension bar!
+
+Thank you!

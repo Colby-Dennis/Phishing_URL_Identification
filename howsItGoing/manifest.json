@@ -1,0 +1,23 @@
+{
+
+    "manifest_version": 2,
+    "name": "Phishing Checker",
+    "version": "1.0",
+  
+    "description": "Predicts if a website is phishing or not.",
+  
+    "icons": {
+      "48": "icons/report_off.svg"
+    },
+
+    "permissions": [
+        "activeTab"
+      ],
+    
+      "browser_action": {
+        "default_icon": "icons/report.svg",
+        "default_title": "Go Phishing",
+        "default_popup": "phish.html"
+      }
+
+}
