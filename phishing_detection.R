@@ -284,7 +284,39 @@ plot(tree.model)
 text(tree.model, pretty=1)
 prettyTree(tree.model)
 rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
-  
+
+#decision trees C50 for small data set
+install.packages("C50")
+library(C50)
+
+c5tree.model <- C5.0(mysmalldata_train(Result~.),data=mysmalldata_train, rules=T)
+str(mysmalldata_train$Result)
+print(c5tree.model)
+summary(c5tree.model)
+#run the model on the data, print a confusion matrix, and show the accuracy
+c5tree.prediction <- predict(c5tree.model, newdata=mysmalldata_test)
+c5confusion.matrix <- table(mysmalldata_test$Result, c5tree.prediction)
+print(c5confusion.matrix)
+accuracy.percent <- 100*sum(diag(c5confusion.matrix))/sum(c5confusion.matrix)
+print(paste("accuracy:",accuracy.percent,"%"))
+
+#plot the tree (have to rerun the model with rules=F)
+c5tree.model <- C5.0(as.formula(Result~.), data=mysmalldata_train, rules=F)
+plot(c5tree.model)
+
+#Random Forest
+install.packages("randomForest")
+library(randomForest)
+#build the random forest model using specifying 100 trees
+rf01 <- randomForest(formula = Result~., data = mysmalldata_train, ntree = 100, type = "classification")
+rf01
+plot(rf01) #plots trees versus error
+rf01.prediction <- predict(rf01,newdata=mysmalldata_test)
+rfconfusion.matrix <- table(mysmalldata_test$Result, rf01.prediction)
+print(rfconfusion.matrix)
+accuracy.percent <- 100*sum(diag(rfconfusion.matrix))/sum(rfconfusion.matrix)
+print(paste("accuracy:",accuracy.percent,"%"))
+
 # KNN Model
 grid <- expand.grid(k = c(1:10))
 # choose values for K in K-NN
