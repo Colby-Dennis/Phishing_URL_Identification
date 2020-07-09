@@ -7,21 +7,20 @@
 # install.packages("gridExtra")
 # install.packages("neuralnet")
 # install.packages("caret")
-<<<<<<< Updated upstream
-=======
+
 # install.packages("corrplot")
 # install.packages("microbenchmark")
->>>>>>> Stashed changes
+
 library(ggplot2)
 library(gridExtra)
 library(neuralnet)
 library(caret)
 library(rpart); library(rpart.plot)
 library(DMwR)
-=======
+
 library(corrplot)
 library(microbenchmark)
->>>>>>> Stashed changes
+
 
 #Loading in the data
 mysmalldata <- read.csv("https://raw.githubusercontent.com/PhysikerWT/Phishing_URL_Identification/master/rawDataSetSmall.csv")
@@ -443,8 +442,7 @@ b<-round(cor(Y_z),3)
 plot(b)
 plot(as.data.frame(b)) #MUST ZOOM IN => HARD TO SEE
 heatmap(b)
-<<<<<<< Updated upstream
-=======
+
 
 #Correlation Matrix (Comparing first half)
 G <- mysmalldata_train[,c(2:15, 32)]
@@ -586,3 +584,11 @@ fox_nn_4nodes_conf <- confusionMatrix(factor(fox_nn_4nodes_result), factor(fox_t
 print(fox_nn_4nodes_conf)
 
 # DID NOT CONVERGE WITHING STEPMAX
+
+#mysmalldata_test
+#mysmalldata_train
+
+smalldata3_train <- mysmalldata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","Result")]
+smalldata3_test <-  mysmalldata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","Result")]
+smalldata3_train <- mysmalldata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","Result")]
+smalldata3_test <-  mysmalldata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","Result")]
