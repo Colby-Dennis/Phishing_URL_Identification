@@ -1,3 +1,5 @@
+// Code that runs on the site
+
 (function() {
     /**
      * Check and set a global guard variable.
@@ -7,7 +9,17 @@
     if (window.hasRun) {
       return;
     }
-    //webRequest.onHeadersReceived.addListener()
+    
+    // Adding jquery to the site.
+    var x = document.createElement("SCRIPT");
+    x.src = "https://code.jquery.com/jquery-3.2.1.min.js";
+    var y = document.getElementsByTagName("BODY")[0];
+    y.appendChild(x);
+
+    const apiKey = "at_TWairv8zXXBmo8SlTv5xscNREuGdS";
+
+    const url = 'https://www.whoisxmlapi.com/whoisserver/WhoisService?';
+    const domainName = 'whoisxmlapi.com';
 
     // A function that extracts relevant features from a weblink
     function extractFeatures(webLink) {
@@ -118,9 +130,9 @@
                 links[i].style = sketch;
                 div.style = sketch;
             }
-            
             links[i].insertBefore(div, links[i].childNodes[0]);
             extractFeatures(links[i].href);
+
         }
     }
 
@@ -139,9 +151,17 @@
     browser.runtime.onMessage.addListener((message) => {
         if (message.command == "phish" && state == 0) {
             gottaShow();
+            
+
         } else if (message.command == "reset" && state == 1) {
             notShow();
         }
       });
+
+
+      
+
+  
+
     
 })();
