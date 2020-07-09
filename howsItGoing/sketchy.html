@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    
     <header>
         <h1>A basic website to show how our model works.</h1>
     </header>
@@ -15,9 +16,18 @@
         <li><a href="2">The second link</a></li>
         <li><a href="3">The third link</a></li>
       </ul>
+
+      <br>
+      <button onclick="queryColor();">Click me!</button>
     </main>
     <footer>
 
     </footer>
+    <script>
+      function queryColor() {
+        $("p").css("background-color", "yellow");
+      }
+
+    </script>
   </body>
 </html>
