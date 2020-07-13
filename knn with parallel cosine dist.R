@@ -11,7 +11,7 @@ cosine.par <- function(cl, vecA, matB) {
   r
 }
 ## Grid search function oof KNN
-grid_search_knn<-function(min_iter,max_iter,train_feature,test_feature,train_label,dist_matrix)
+grid_search_knn<-function(min_iter,max_iter,train_feature,test_feature,train_label,test_label,dist_matrix)
 {
   max_row<-max_iter-min_iter+1
   result=matrix(0,max_row,2)
@@ -20,7 +20,7 @@ grid_search_knn<-function(min_iter,max_iter,train_feature,test_feature,train_lab
   for (k in min_iter:max_iter)
   {
     pred<-knn_test_function(train_feature, test_feature, dist_matrix,train_label, k = k)
-    conf_mat<-confusionMatrix(factor(pred),factor(y_test))
+    conf_mat<-confusionMatrix(factor(pred),factor(test_label))
     result[row_count,1]<-k
     result[row_count,2]<-conf_mat$byClass[['Balanced Accuracy']]
     row_count<-row_count+1
@@ -72,7 +72,7 @@ system.time({
 # write.csv(dist_matrix,"Cosine_distance_70_30_Mode.csv",row.names = F)# writing the distance calculation to csv file due to long duration of calculation
 
 # knn model with training, testing feature, distance matrix, target variable, and number of neighbors to be considered
-search_result<-data.frame(grid_search_knn(1,25,x_train,x_test,y_train,cosine_sim))
+search_result<-data.frame(grid_search_knn(1,25,x_train,x_test,y_train,y_test,cosine_sim))
 ggplot(data=search_result, aes(x=X1, y=X2, group=1)) +
   geom_line(color="red")+
   labs(x="Number of neighbors", y = "Balanced Accuracy")+
