@@ -610,3 +610,37 @@ print(fox_nn_4nodes_conf)
 
 # DID NOT CONVERGE WITHING STEPMAX
 
+rawdata3_train <- myrawdata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","Result")]
+rawdata3_test <-  myrawdata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","Result")]
+write.csv(rawdata3_train, "3factors_train.csv")
+write.csv(rawdata3_test, "3factors_test.csv")
+rawdata4_train <- myrawdata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Result")]
+rawdata4_test <-  myrawdata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Result")]
+write.csv(rawdata4_train, "4factors_train.csv")
+write.csv(rawdata4_test, "4factors_test.csv")
+rawdata5_train <- myrawdata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Result")]
+rawdata5_test <-  myrawdata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Result")]
+write.csv(rawdata5_train, "5factors_train.csv")
+write.csv(rawdata5_test, "5factors_test.csv")
+rawdata6_train <- myrawdata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Links_in_tags","Result")]
+rawdata6_test <-  myrawdata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Links_in_tags","Result")]
+write.csv(rawdata6_train, "6factors_train.csv")
+write.csv(rawdata6_test, "6factors_test.csv")
+rawdata7_train <- myrawdata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Links_in_tags",
+                                    "SFH","Result")]
+rawdata7_test <-  myrawdata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Links_in_tags",
+                                   "SFH","Result")]
+write.csv(rawdata7_train, "7factors_train.csv")
+write.csv(rawdata7_test, "7factors_test.csv")
+rawdata8_train <- myrawdata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Links_in_tags",
+                                    "SFH","Domain_registration_length","Result")]
+rawdata8_test <-  myrawdata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Links_in_tags",
+                                   "SFH","Domain_registration_length","Result")]
+write.csv(rawdata8_train, "8factors_train.csv")
+write.csv(rawdata8_test, "8factors_test.csv")
+rawdata9_train <- myrawdata_train[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Links_in_tags",
+                                   "SFH","Domain_registration_length","Request_URL","Result")]
+rawdata9_test <-  myrawdata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffic","having_Sub_Domain","Prefix_Suffix","Links_in_tags",
+                                   "SFH","Domain_registration_length","Request_URL","Result")]
+write.csv(rawdata9_train, "9factors_train.csv")
+write.csv(rawdata9_test, "9factors_test.csv")
