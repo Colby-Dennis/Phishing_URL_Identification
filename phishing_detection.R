@@ -317,8 +317,8 @@ rpart.plot(tree.model,box.palette="RdBu", shadow.col="gray", nn=TRUE)
 #decision trees C50 for small data set
 install.packages("C50")
 library(C50)
-
-c5tree.model <- C5.0(mysmalldata_train(Result~.),data=mysmalldata_train, rules=T)
+mysmalldata_train$Result<-as.factor(mysmalldata_train$Result) ## FIXED THIS LINE
+c5tree.model <- C5.0(as.formula(Result~.),data=mysmalldata_train, rules=T) ## FIXED THIS LINE
 str(mysmalldata_train$Result)
 print(c5tree.model)
 summary(c5tree.model)
@@ -331,6 +331,23 @@ print(paste("accuracy:",accuracy.percent,"%"))
 
 #plot the tree (have to rerun the model with rules=F)
 c5tree.model <- C5.0(as.formula(Result~.), data=mysmalldata_train, rules=F)
+plot(c5tree.model)
+
+#decision trees C50 for raw data set ## ADDED RAW DATA DECISION TREE
+myrawdata_train$Result<-as.factor(myrawdata_train$Result)
+c5tree.model <- C5.0(as.formula(Result~.),data=myrawdata_train, rules=T)
+str(myrawdata_train$Result)
+print(c5tree.model)
+summary(c5tree.model)
+#run the model on the data, print a confusion matrix, and show the accuracy
+c5tree.prediction <- predict(c5tree.model, newdata=myrawdata_test)
+c5confusion.matrix <- table(myrawdata_test$Result, c5tree.prediction)
+print(c5confusion.matrix)
+accuracy.percent <- 100*sum(diag(c5confusion.matrix))/sum(c5confusion.matrix)
+print(paste("accuracy:",accuracy.percent,"%"))
+
+#plot the tree (have to rerun the model with rules=F)
+c5tree.model <- C5.0(as.formula(Result~.), data=myrawdata_train, rules=F)
 plot(c5tree.model)
 
 #Random Forest
