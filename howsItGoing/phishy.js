@@ -206,7 +206,7 @@
             }
         }
 
-        console.log("I predected there were "+sketchLinkCount+" phishing links on this page.");
+        console.log("I predicted there were "+sketchLinkCount+" phishing links on this page.");
          
     }
 
