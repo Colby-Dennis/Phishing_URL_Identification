@@ -20,6 +20,10 @@ mysmalldata_test <- read.csv("8factors_test.csv",header=T)
 mysmalldata_train <- read.csv("9factors_train.csv",header=T) # 89.52%
 mysmalldata_test <- read.csv("9factors_test.csv",header=T)
 
+# Javascript file has an id column...
+mysmalldata_train <- read.csv("javascript_train.csv", header=T)[,-1] #85.30% C.50
+mysmalldata_test <- read.csv("javascript_test.csv", header=T)[,-1]
+
 # Decision Tree
 tree.model <- rpart(Result~., data=mysmalldata_train, method="class")
 print(tree.model) #shows the data partition percentages and the split attributes
