@@ -7,9 +7,91 @@
     if (window.hasRun) {
       return;
     }
-    //webRequest.onHeadersReceived.addListener()
 
-    // A function that extracts relevant features from a weblink
+    // A quick function to extract the domain of a weblink
+    function getDomain(link) {
+        return ((link.split("://")[1]).split("/")[0]);
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Use this section to cause interactions on the webpage itself.
+
+    // Getting the header and domain for the page.
+    var pageURL = window.location.href;
+    var pageDomain = getDomain(pageURL);
+
+    // URL of Anchor
+    // Checking if domain in link matches site domain. 
+    // if less than 20% of the links on the page are leaving the page
+    // then the page is classified as legit. If between 20 and 50
+    // it is suspecious. Greater than 50 it is phishing.
+
+    function url_of_anchor () {
+
+        // Storing all of the links on the page in an array. (links include full address)
+        l = document.links;
+        var doc_links = new Array(l.length);
+        for (i = 0; i < l.length; i++) {
+            doc_links[i] = l[i].href;
+        }
+        
+        // Counting number of times the url leaves the page or isn't a url. (only counting https)
+        var legit_count = 0;
+        for (i = 0; i < doc_links.length; i++) {
+            if (doc_links[i].includes("https://")) {
+                legit_count++;
+            }
+        }
+
+        // Determining the percentages of links that are NOT legit (assuming https)
+        var percent_anchor = Math.floor(100*(doc_links.length - legit_count)/(doc_links.length));
+        
+        if (percent_anchor < 20) {
+            return 1;
+        } else if (percent_anchor > 50) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    // Checking if the image sources are loaded from the same webpage simlar to the above method
+    // If the percent of externally loaded images is less than 20 then legit, between 20 and 50
+    // suspecious, greather than 50 then phishing.
+
+    function request_url() {
+        // storing all of the image sources in an array.
+        var img = document.getElementsByTagName("img");
+        var img_src = new Array(img.length);
+
+        for (i = 0; i < img.length; i++) {
+            img_src[i] = img[i].src;
+        }
+
+        // Counting the number of times an image is pulled from outside the site.
+        var outsideRequest = 0;
+        for (i = 0; i < img_src.length; i++) {
+            if (pageDomain != getDomain(img_src[i])) {
+                outsideRequest++;
+            }
+        }
+
+        // determining the percentage of outside equests
+        var requestPercent = Math.floor(100*(outsideRequest / img_src.length));
+
+        // Returning the prediction of phishing.
+        if (requestPercent < 20) {
+            return 1;
+        } else if (requestPercent > 50) {
+            return -1;
+        } else {
+            return 0;
+        }
+
+    }
+
+
+    // A function that extracts relevant features from a standalone weblink.
     function extractFeatures(webLink) {
         /*
             Array is as follows:
@@ -18,8 +100,9 @@
             double_slash_redirecting
             Prefix_Suffix
             having_Sub_domain
+            having_IP_address
         */
-       var featureArray = new Array(5);
+       var featureArray = new Array(6);
        
        // URL_Length
        if (webLink.length < 54) {
@@ -45,6 +128,7 @@
        }
 
        link_split = webLink.split(".")
+
        // Prefix_Suffix
        if (link_split.length >= 2) {
         if (link_split[0].includes("-") || link_split[2].includes("-")) {
@@ -68,8 +152,45 @@
        } else {
            featureArray[4] = -1;
        }
+
+       
+       // Having ip address
+       var domainParts = getDomain(webLink.split("."));
+       if (domainParts.length >= 4) {
+            // If 4 consecutive parts of the domain contain numbers then it is
+            // considered to have an IP address and is phishing.
+            var numberCount = 0;
+            var i = 0;
+            // only loop while the number count is less than zero and there are more parts to consider
+            while (i < domainParts.length && numberCount < 4) {
+                // sectionNumber turns to true if section contains a number
+                var sectionNumber = false;
+                for (j = 0; j < domainParts[i].length; j++) {
+                    if (!isNaN(domainParts[i][j])) {
+                        sectionNumber = true;
+                    }
+                }
+
+                if (sectionNumber) {
+                    numberCount++;
+                } else {
+                    numberCount = 0;
+                }
+
+                i++;
+            }
+
+            if (numberCount >= 4) {
+                featureArray[5] = -1;
+            } else {
+                featureArray[5] = 1;
+            }
+       } else {
+           featureArray[5] = 1;
+       }
        
        return(featureArray)
+
     }
 
     function isLegit_Linear(array) {
@@ -104,6 +225,7 @@
     var links = document.getElementsByTagName('a');
     var notSketch = "padding: 3px; background-color: green; color: black";
     var sketch = "padding: 3px; background-color: red; color: black";
+    var images = document.getElementsByTagName("img");
 
 
     function gottaShow () {
@@ -143,5 +265,6 @@
             notShow();
         }
       });
+
     
 })();

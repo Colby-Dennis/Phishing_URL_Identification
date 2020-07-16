@@ -661,3 +661,12 @@ rawdata9_test <-  myrawdata_test[c("URL_of_Anchor", "SSLfinal_State","web_traffi
                                    "SFH","Domain_registration_length","Request_URL","Result")]
 write.csv(rawdata9_train, "9factors_train.csv")
 write.csv(rawdata9_test, "9factors_test.csv")
+
+javascript_raw_train <- myrawdata_train[c("URL_of_Anchor","Request_URL","URL_Length",
+                                          "having_At_Symbol","Prefix_Suffix","having_Sub_Domain",
+                                          "having_IP_address","Result")]
+javascript_raw_test <- myrawdata_test[c("URL_of_Anchor","Request_URL","URL_Length",
+                                        "having_At_Symbol","Prefix_Suffix","having_Sub_Domain",
+                                        "having_IP_address","Result")]
+write.csv(javascript_raw_train, "javascript_train.csv")
+write.csv(javascript_raw_test, "javascript_test.csv")
