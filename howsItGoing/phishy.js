@@ -102,7 +102,7 @@
             having_Sub_domain
             having_IP_address
         */
-       var featureArray = new Array(6);
+       var featureArray = new Array(5);
        
        // URL_Length
        if (webLink.length < 54) {
@@ -155,13 +155,16 @@
 
        
        // Having ip address
+       /*
        var domainParts = getDomain(webLink.split("."));
+       console.log(domainParts);
        if (domainParts.length >= 4) {
             // If 4 consecutive parts of the domain contain numbers then it is
             // considered to have an IP address and is phishing.
             var numberCount = 0;
             var i = 0;
             // only loop while the number count is less than zero and there are more parts to consider
+            
             while (i < domainParts.length && numberCount < 4) {
                 // sectionNumber turns to true if section contains a number
                 var sectionNumber = false;
@@ -187,12 +190,13 @@
             }
        } else {
            featureArray[5] = 1;
-       }
+       }*/
        
        return(featureArray)
 
     }
 
+    // Old linear classification. DO NOT USE
     function isLegit_Linear(array) {
 
         var model_total = 0.40569;
@@ -208,6 +212,7 @@
         }
     }
 
+
     function isLegit_Tree(array) {
         if (array[4] < 1) {
             if (array[3] < 1) {
@@ -222,47 +227,105 @@
 
     var state = 0;
 
-    var links = document.getElementsByTagName('a');
-    var notSketch = "padding: 3px; background-color: green; color: black";
-    var sketch = "padding: 3px; background-color: red; color: black";
-    var images = document.getElementsByTagName("img");
+    // Need to re-evaluate system.
+    
+    /*
+    var doc_links = new Array(l.length);
+    for (i = 0; i < l.length; i++) {
+        doc_links[i] = l[i].href;
+    }*/
 
-
-    function gottaShow () {
+    // Combining everything to check for phishing
+    // The function loops through each link on the page. If the link is considered phishing
+    // it will put a read border around the link.
+    function goPhishing() {
+        l = document.links;
         state = 1;
-        for (var i = 0; i < links.length; i++) {
-            var div = document.createElement("div");
-            div.classList.add("sketchRating");
-            if (isLegit_Tree(extractFeatures(links[i].href))) {
-                links[i].style = notSketch;
-                div.style = notSketch;
+        var sketchLinkCount = 0;
+
+        console.log("Total number of links on the page: "+l.length);
+
+        var urlAnchor = url_of_anchor();
+        var requestUrl = request_url();
+
+        // Using the c.50 model which gave a 85.3% accuracy on our dataset.
+        // looping through each link on the page.
+        for (var i = 0; i < l.length; i++) {
+            var isPhishing = false; // a place to store the result of this link.
+            console.log(l[i].href);
+            var features = extractFeatures(l[i].href);
+
+            console.log(features)
+            /*
+            features array is as follows:
+            [0] URL_Length
+            [1] having_At_Symbol
+            [2] double_slash_redirecting
+            [3] Prefix_Suffix
+            [4] having_Sub_domain
+            [5] having_IP_address
+        */
+            if (urlAnchor <= -1) {
+                isPhishing = true;
             } else {
-                links[i].style = sketch;
-                div.style = sketch;
+                if (features[3] > 0) {
+                    isPhishing = false;
+                } else {
+                    if(features[4] > 0) {
+                        isPhishing = false;
+                    } else {
+                        if (features[0] > 0) {
+                            isPhishing = false;
+                        } else {
+                            if (urlAnchor > 0) {
+                                isPhishing = false;
+                            } else {
+                                if (requestUrl <= -1) {
+                                    isPhishing = true;
+                                } else {
+                                    if (features[4] <= -1) {
+                                        isPhishing = false;
+                                    } else {
+                                        if (features[5] <= 0) {
+                                            isPhishing = true;
+                                        } else {
+                                            isPhishing = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            
-            links[i].insertBefore(div, links[i].childNodes[0]);
-            extractFeatures(links[i].href);
+
+
+            if (isPhishing) {
+                //l[i].style.border = "thick solid red";
+                sketchLinkCount++;
+            }
         }
+
+        console.log("I predected there were "+sketchLinkCount+" phishing links on this page.");
+         
     }
 
-    function notShow () {
+    function removePhishingDetection() {
+        l = document.links;
         state = 0;
-        for (var i = 0; i < links.length; i++) {
-            links[i].style = "";
+        for (i = 0; i < l.length; i++) {
+            l[i].style.border = "";
         }
-        sketchRatings = document.getElementsByClassName("sketchRating")
-        while(sketchRatings) {
-            sketchRatings[0].remove();
-        }
+        
     }
+
 
     window.hasRun = true;
     browser.runtime.onMessage.addListener((message) => {
         if (message.command == "phish" && state == 0) {
-            gottaShow();
+            goPhishing();
         } else if (message.command == "reset" && state == 1) {
-            notShow();
+            removePhishingDetection;
         }
       });
 
