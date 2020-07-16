@@ -96,11 +96,8 @@
         /*
             Array is as follows:
             URL_Length
-            having_At_Symbol
-            double_slash_redirecting
             Prefix_Suffix
             having_Sub_domain
-            having_IP_address
         */
        var featureArray = new Array(5);
        
@@ -112,20 +109,7 @@
        } else {
            featureArray[0] = 0;
        }
-
-       // having_At_Symbol
-       if (webLink.includes("@")) {
-           featureArray[1] = -1;
-       } else {
-           featureArray[1] = 1;
-       }
-
-       // double_slash_redirecting
-       if (webLink.replace("http://","").replace("https://","").includes("//")) {
-           featureArray[2] = -1;
-       } else {
-           featureArray[2] = 1;
-       }
+       console.log("got url length");
 
        link_split = webLink.split(".")
 
@@ -139,6 +123,8 @@
        } else {
             featureArray[3] = 1;
        }
+       
+       console.log("got prefix-suffix")
 
        // sub domain and multi sub domain
        dotCount = 3;
@@ -152,6 +138,8 @@
        } else {
            featureArray[4] = -1;
        }
+
+       console.log("got domain sub domain");
 
             
        return(featureArray)
@@ -208,7 +196,9 @@
         console.log("Total number of links on the page: "+l.length);
 
         var urlAnchor = url_of_anchor();
+        console.log(urlAnchor);
         var requestUrl = request_url();
+        console.log(requestUrl);
 
         // Using the c.50 model which gave a 85.3% accuracy on our dataset.
         // looping through each link on the page.
@@ -218,18 +208,16 @@
             /*
             features array is as follows:
             [0] URL_Length
-            [1] having_At_Symbol
-            [2] double_slash_redirecting
-            [3] Prefix_Suffix
-            [4] having_Sub_domain
+            [1] Prefix_Suffix
+            [2] having_Sub_domain
         */
             if (urlAnchor <= -1) {
                 isPhishing = true;
             } else {
-                if (features[3] > 0) {
+                if (features[1] > 0) {
                     isPhishing = false;
                 } else {
-                    if(features[4] > 0) {
+                    if(features[2] > 0) {
                         isPhishing = false;
                     } else {
                         if (features[0] > 0) {
