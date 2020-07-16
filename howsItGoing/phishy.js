@@ -10,7 +10,12 @@
 
     // A quick function to extract the domain of a weblink
     function getDomain(link) {
-        return ((link.split("://")[1]).split("/")[0]);
+        if (link.includes("://")) {
+            return ((link.split("://")[1]).split("/")[0]);
+        } else {
+            return (link.split("/")[0]);
+        }
+        
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +104,7 @@
             Prefix_Suffix
             having_Sub_domain
         */
-       var featureArray = new Array(5);
+       var featureArray = new Array(3);
        
        // URL_Length
        if (webLink.length < 54) {
@@ -109,81 +114,40 @@
        } else {
            featureArray[0] = 0;
        }
-       console.log("got url length");
 
-       link_split = webLink.split(".")
+       var linkDomain = getDomain(webLink);
 
        // Prefix_Suffix
-       if (link_split.length >= 2) {
-        if (link_split[0].includes("-") || link_split[2].includes("-")) {
-            featureArray[3] = -1;
-        } else {
-            featureArray[3] = 1;
-        }
+       if (linkDomain.includes("-")) {
+           featureArray[1] = -1;
        } else {
-            featureArray[3] = 1;
+           featureArray[1] = 1;
        }
-       
-       console.log("got prefix-suffix")
 
        // sub domain and multi sub domain
-       dotCount = 3;
-       if (link_split[0].includes("www")) {
-        dotCount = 4;
-       }
-       if (link_split.length < dotCount) {
-           featureArray[4] = 1;
-       } else if (link_split.length == dotCount) {
-           featureArray[4] = 0;
-       } else {
-           featureArray[4] = -1;
+       // removing www. from domain if present.
+       if (linkDomain.includes("www.")) {
+           linkDomain = linkDomain.split("www.");
+           linkDomain = linkDomain.join("");
        }
 
-       console.log("got domain sub domain");
+       linkDomain = linkDomain.split(".");
+       if (linkDomain.length < 4) {
+           featureArray[2] = 1;
+       } else if (linkDomain.length == 4) {
+           featureArray[2] = 0;
+       } else {
+           featureArray[2] = -1;
+       }
+
+      // console.log("got domain sub domain");
 
             
        return(featureArray)
 
     }
 
-    // Old linear classification. DO NOT USE
-    function isLegit_Linear(array) {
-
-        var model_total = 0.40569;
-        model_total += 0.05772 * array[0];
-        model_total += 0.10261 * array[1];
-        model_total += -0.01059 * array[2];
-        model_total += 0.4598 * array[3];
-        model_total += 0.33674 * array[4];
-        if (model_total >= 0) {
-            return true;
-        } else {
-            return false
-        }
-    }
-
-
-    function isLegit_Tree(array) {
-        if (array[4] < 1) {
-            if (array[3] < 1) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return false;
-        }
-    }
-
     var state = 0;
-
-    // Need to re-evaluate system.
-    
-    /*
-    var doc_links = new Array(l.length);
-    for (i = 0; i < l.length; i++) {
-        doc_links[i] = l[i].href;
-    }*/
 
     // Combining everything to check for phishing
     // The function loops through each link on the page. If the link is considered phishing
@@ -196,9 +160,7 @@
         console.log("Total number of links on the page: "+l.length);
 
         var urlAnchor = url_of_anchor();
-        console.log(urlAnchor);
         var requestUrl = request_url();
-        console.log(requestUrl);
 
         // Using the c.50 model which gave a 85.3% accuracy on our dataset.
         // looping through each link on the page.
