@@ -24,6 +24,9 @@ mysmalldata_test <- read.csv("9factors_test.csv",header=T)
 mysmalldata_train <- read.csv("javascript_train.csv", header=T)[,-1] #85.30% C.50
 mysmalldata_test <- read.csv("javascript_test.csv", header=T)[,-1]
 
+library(rpart)
+library(rpart.plot)
+
 # Decision Tree
 tree.model <- rpart(Result~., data=mysmalldata_train, method="class")
 print(tree.model) #shows the data partition percentages and the split attributes
