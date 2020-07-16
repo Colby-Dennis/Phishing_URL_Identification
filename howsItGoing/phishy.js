@@ -153,45 +153,7 @@
            featureArray[4] = -1;
        }
 
-       
-       // Having ip address
-       /*
-       var domainParts = getDomain(webLink.split("."));
-       console.log(domainParts);
-       if (domainParts.length >= 4) {
-            // If 4 consecutive parts of the domain contain numbers then it is
-            // considered to have an IP address and is phishing.
-            var numberCount = 0;
-            var i = 0;
-            // only loop while the number count is less than zero and there are more parts to consider
             
-            while (i < domainParts.length && numberCount < 4) {
-                // sectionNumber turns to true if section contains a number
-                var sectionNumber = false;
-                for (j = 0; j < domainParts[i].length; j++) {
-                    if (!isNaN(domainParts[i][j])) {
-                        sectionNumber = true;
-                    }
-                }
-
-                if (sectionNumber) {
-                    numberCount++;
-                } else {
-                    numberCount = 0;
-                }
-
-                i++;
-            }
-
-            if (numberCount >= 4) {
-                featureArray[5] = -1;
-            } else {
-                featureArray[5] = 1;
-            }
-       } else {
-           featureArray[5] = 1;
-       }*/
-       
        return(featureArray)
 
     }
@@ -252,10 +214,7 @@
         // looping through each link on the page.
         for (var i = 0; i < l.length; i++) {
             var isPhishing = false; // a place to store the result of this link.
-            console.log(l[i].href);
             var features = extractFeatures(l[i].href);
-
-            console.log(features)
             /*
             features array is as follows:
             [0] URL_Length
@@ -263,7 +222,6 @@
             [2] double_slash_redirecting
             [3] Prefix_Suffix
             [4] having_Sub_domain
-            [5] having_IP_address
         */
             if (urlAnchor <= -1) {
                 isPhishing = true;
@@ -283,15 +241,7 @@
                                 if (requestUrl <= -1) {
                                     isPhishing = true;
                                 } else {
-                                    if (features[4] <= -1) {
-                                        isPhishing = false;
-                                    } else {
-                                        if (features[5] <= 0) {
-                                            isPhishing = true;
-                                        } else {
-                                            isPhishing = false;
-                                        }
-                                    }
+                                    isPhishing = false;
                                 }
                             }
                         }
@@ -301,7 +251,7 @@
 
 
             if (isPhishing) {
-                //l[i].style.border = "thick solid red";
+                l[i].style.border = "thick solid red";
                 sketchLinkCount++;
             }
         }
@@ -325,7 +275,7 @@
         if (message.command == "phish" && state == 0) {
             goPhishing();
         } else if (message.command == "reset" && state == 1) {
-            removePhishingDetection;
+            removePhishingDetection();
         }
       });
 
